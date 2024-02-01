@@ -51,7 +51,9 @@ $(BUILD_DIR)/$(OS_ISO): $(ISO_DIR) $(BIN_DIR)/$(OS_BIN)
 	@cp grub.cfg $(ISO_GRUB_DIR)/
 	@grub-mkrescue -o $(BUILD_DIR)/$(OS_ISO) $(ISO_DIR)
 
-all: clean $(BUILD_DIR)/$(OS_ISO) qemu
+
+
+all: $(BUILD_DIR)/$(OS_ISO)
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -60,4 +62,4 @@ qemu:
 	qemu-system-i386 -cdrom $(BUILD_DIR)/$(OS_NAME).iso
 
 bochs:
-	
+	bochs -f .bochsrc

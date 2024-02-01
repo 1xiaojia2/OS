@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define SEG_DESCTYPE(x)  ((x) << 0x04)
-#define SEG_PRES(x)      ((x) << 0x07)
-#define SEG_SAVL(x)      ((x) << 0x0C)
-#define SEG_LONG(x)      ((x) << 0x0D)
-#define SEG_SIZE(x)      ((x) << 0x0E)
-#define SEG_GRAN(x)      ((x) << 0x0F)
-#define SEG_PRIV(x)     (((x) &  0x03) << 0x05)
+#define SEG_DESCTYPE(x) (x << 4)
+#define SEG_DPL(x)      (x << 5)
+#define SEG_PRES(x)     (x << 7)
+#define SEG_AVL(x)      (x << 12)
+#define SEG_LMODE(x)    (x << 13)
+#define SEG_SIZE(x)     (x << 14)
+#define SEG_GRAN(x)     (x << 15)
 
 #define SEG_DATA_RD        0x00 // Read-Only
 #define SEG_DATA_RDA       0x01 // Read-Only, accessed
@@ -29,23 +29,19 @@
 #define SEG_CODE_EXRDC     0x0E // Execute/Read, conforming
 #define SEG_CODE_EXRDCA    0x0F // Execute/Read, conforming, accessed
 
-#define GDT_CODE_DPL0   SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
-                        SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
-                        SEG_PRIV(0)     | SEG_CODE_EXRD
- 
-#define GDT_DATA_DPL0   SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
-                        SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
-                        SEG_PRIV(0)     | SEG_DATA_RDWR
- 
-#define GDT_CODE_DPL3   SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
-                        SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
-                        SEG_PRIV(3)     | SEG_CODE_EXRD
- 
-#define GDT_DATA_DPL3   SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
-                        SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
-                        SEG_PRIV(3)     | SEG_DATA_RDWR
+#define GDT_FLAG_CODE_DPL0      SEG_GRAN(1) | SEG_SIZE(1) | SEG_LMODE(0) | SEG_AVL(0) | \
+                                SEG_PRES(1) | SEG_DPL(0)  | SEG_DESCTYPE(1) | SEG_CODE_EXRD
 
-void creat_descriptor(size_t index, uint32_t base, uint32_t limit, uint16_t flag);
+#define GDT_FLAG_DATA_DPL0      SEG_GRAN(1) | SEG_SIZE(1) | SEG_LMODE(0) | SEG_AVL(0) | \
+                                SEG_PRES(1) | SEG_DPL(0)  | SEG_DESCTYPE(1) | SEG_DATA_RDWR
+
+#define GDT_FLAG_CODE_DPL3      SEG_GRAN(1) | SEG_SIZE(1) | SEG_LMODE(0) | SEG_AVL(0) | \
+                                SEG_PRES(1) | SEG_DPL(3)  | SEG_DESCTYPE(1) | SEG_CODE_EXRD
+
+#define GDT_FLAG_DATA_DPL3      SEG_GRAN(1) | SEG_SIZE(1) | SEG_LMODE(0) | SEG_AVL(0) | \
+                                SEG_PRES(1) | SEG_DPL(3)  | SEG_DESCTYPE(1) | SEG_DATA_RDWR
+
+void create_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
 void _gdt_init();
 
 #endif  /* _I386_GDT_H */

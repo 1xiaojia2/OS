@@ -26,22 +26,34 @@
     .global _start
     _start:
         movl $stack_top, %esp
-        
-        call _kernel_initialize
 
-        
+        call _kernel_initialize      
 
+        pushl $_gdt
+        pushw _gdt_limit
+
+        lgdt (%esp)
+        
+        pop %ax
+        pop %eax
+        xor %eax, %eax 
+
+        ljmp $0x08, $_after_lgdt    /* modify CS */
+
+    _after_lgdt:
+        movw $0x10, %ax
+        
+        movw %ax, %ds
+        movw %ax, %es
+        movw %ax, %fs
+        movw %ax, %gs
+        movw %ax, %ss
+        
     
-        
-
-        /*
-        TODO:
-            Load GDT
-            Load IDT
-            Enable paging
-        */
-
+        pushl %ebx
         call _kernel_main
     
+        cli
     loop:
+        hlt
         jmp loop

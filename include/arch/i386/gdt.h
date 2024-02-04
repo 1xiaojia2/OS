@@ -2,7 +2,6 @@
 #define _I386_GDT_H 1
 
 #include <stdint.h>
-#include <stddef.h>
 
 #define SEG_DESCTYPE(x) (x << 4)
 #define SEG_DPL(x)      (x << 5)
@@ -41,7 +40,7 @@
 #define GDT_FLAG_DATA_DPL3      SEG_GRAN(1) | SEG_SIZE(1) | SEG_LMODE(0) | SEG_AVL(0) | \
                                 SEG_PRES(1) | SEG_DPL(3)  | SEG_DESCTYPE(1) | SEG_DATA_RDWR
 
-void create_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
+void _create_gdt_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
 void _gdt_init();
 
 #endif  /* _I386_GDT_H */

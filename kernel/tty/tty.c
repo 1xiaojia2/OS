@@ -22,6 +22,7 @@ void tty_initialize(){
     tty_buffer = (uint16_t*)TTY_BUFFER_START;
 
     tty_color = vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
+
     for (size_t offset = 0; offset < TTY_BUGGER_LENGTH; ++offset)
         tty_buffer[offset] = vga_entry(' ', tty_color);
 }
@@ -29,9 +30,13 @@ void tty_initialize(){
 void tty_put_char(char c){
     if(c == '\n'){
         tty_column = 0;
+
         if(++tty_row == TTY_HEIGHT) 
             tty_scroll_up(1);
     } 
+    
+    // TODO: other escape character
+
     else{
         size_t offset = tty_row * TTY_WIDTH + tty_column;
         tty_put_char_at(c, offset);

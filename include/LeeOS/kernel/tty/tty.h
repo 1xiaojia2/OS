@@ -1,6 +1,7 @@
 #ifndef _TTY_TTY_H
 #define _TTY_TTY_H 1
 #include <stdint.h>
+#include <stddef.h>
 
 enum vga_color {
     VGA_COLOR_BLACK = 0,

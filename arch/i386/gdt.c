@@ -1,10 +1,15 @@
 #include <arch/i386/gdt.h>
 
 uint64_t _gdt[5];
-uint32_t _gdt_limit = sizeof(_gdt) - 1;
-uint32_t _gdt_size = 0;
+uint16_t _gdt_limit = sizeof(_gdt) - 1;
+uint16_t _gdt_size = 0;
 
-void create_descriptor(uint32_t base, uint32_t limit, uint16_t flag){
+void _create_gdt_descriptor(uint32_t base, uint32_t limit, uint16_t flag){
+
+    /* check validity of value of limit */
+    if(limit > _gdt_limit) {
+        // TODO: kerror
+    }
     
     uint64_t descriptor;
     
@@ -24,9 +29,9 @@ void create_descriptor(uint32_t base, uint32_t limit, uint16_t flag){
 
 
 void _gdt_init(){
-    create_descriptor(0, 0, 0);                                 /* 0x00 */
-    create_descriptor(0, 0x000FFFFF, GDT_FLAG_CODE_DPL0);       /* 0x08 */
-    create_descriptor(0, 0x000FFFFF, GDT_FLAG_DATA_DPL0);       /* 0x10 */
-    create_descriptor(0, 0x000FFFFF, GDT_FLAG_CODE_DPL3);
-    create_descriptor(0, 0x000FFFFF, GDT_FLAG_DATA_DPL3);
+    _create_gdt_descriptor(0, 0, 0);                                 /* 0x00 */
+    _create_gdt_descriptor(0, 0x000FFFFF, GDT_FLAG_CODE_DPL0);       /* 0x08 */
+    _create_gdt_descriptor(0, 0x000FFFFF, GDT_FLAG_DATA_DPL0);       /* 0x10 */
+    _create_gdt_descriptor(0, 0x000FFFFF, GDT_FLAG_CODE_DPL3);
+    _create_gdt_descriptor(0, 0x000FFFFF, GDT_FLAG_DATA_DPL3);
 }

@@ -27,27 +27,13 @@
     _start:
         movl $stack_top, %esp
 
-        call _kernel_initialize      
+        call _kernel_init
 
-        pushl $_gdt
-        pushw _gdt_limit
+        call load_idt
 
-        lgdt (%esp)
-        
-        pop %ax
-        pop %eax
-        xor %eax, %eax 
+        call load_gdt
 
-        ljmp $0x08, $_after_lgdt    /* modify CS */
-
-    _after_lgdt:
-        movw $0x10, %ax
-        
-        movw %ax, %ds
-        movw %ax, %es
-        movw %ax, %fs
-        movw %ax, %gs
-        movw %ax, %ss
+        call enable_paging
         
     
         pushl %ebx
@@ -57,3 +43,56 @@
     loop:
         hlt
         jmp loop
+    
+    /* Load GDT and modify segment registers */
+    load_gdt:
+        pushl $_gdt
+        pushw _gdt_limit
+
+        lgdt (%esp)
+
+        pop %ax
+        pop %eax
+
+        /*  
+            Segment registers store segment selector
+
+            modify CS to 0x08(0000000000001000)
+            Index: 1                        Point to the second segment descriptor
+            Table indicator: 0              GDT
+            Requested privileged level: 0   requested DPL = 0
+
+            modify other segment registers to 0x10(0000000000010000)
+            Index: 2                        Point to the third segment descriptor
+            Table indicator: 0              GDT
+            Requested privileged level: 0   requested DPL = 0
+        */
+
+        ljmp $0x08, $_after_lgdt    /* modify CS by jmp instruction */
+
+        _after_lgdt:
+            movl $0x10, %eax
+            
+            movw %ax, %ds
+            movw %ax, %es
+            movw %ax, %fs
+            movw %ax, %gs
+            movw %ax, %ss
+
+        ret
+
+    load_idt:
+        pushl $_idt
+        pushw _idt_limit
+
+        lidt (%esp)
+
+        pop %ax
+        pop %eax
+
+        ret
+        
+    enable_paging:
+        /* TODO */
+
+        ret

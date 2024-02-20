@@ -29,9 +29,9 @@
 
         call _kernel_init
 
-        call load_idt
-
         call load_gdt
+
+        call load_idt
 
         call enable_paging
         
@@ -89,6 +89,7 @@
 
         pop %ax
         pop %eax
+        xor %eax, %eax
 
         ret
         

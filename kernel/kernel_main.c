@@ -10,9 +10,11 @@ void _kernel_init(){
 
 
 void _kernel_main(){
-    tty_initialize();
+    terminal_initialize();
     
-    tty_put_str("Hello, kernel world!\n");
-    tty_put_str("new line!\n");
-    
+    terminal_write("Hello, kernel world!\n");
+    terminal_write("new line!\n");
+
+    //__asm__("int $0");
+    //terminal_write("new line!\n");
 }

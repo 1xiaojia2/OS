@@ -6,7 +6,7 @@
                 "${workspaceFolder}/include/**"
             ],
             "defines": [],
-            "compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc",
+            "compilerPath": "",
             "cStandard": "gnu99",
             "intelliSenseMode": "gcc-x86",
             "configurationProvider": "ms-vscode.makefile-tools"

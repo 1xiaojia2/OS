@@ -13,15 +13,15 @@ void _create_gdt_descriptor(uint32_t base, uint32_t limit, uint16_t flag){
     
     uint64_t descriptor;
     
-    descriptor = base                   & 0xFF000000;
-    descriptor |= (flag & 0x0000F0FF) << 8;
-    descriptor |= limit                 & 0x000F0000;
-    descriptor |= (base >> 16)          & 0x000000FF;
+    descriptor = base           & 0xFF000000;
+    descriptor |= (flag << 8)   & 0x00F0FF00;          
+    descriptor |= limit         & 0x000F0000;
+    descriptor |= (base >> 16)  & 0x000000FF;
     
     descriptor <<= 32;
 
     descriptor |= base << 16;
-    descriptor |= limit & 0x0000FFFF;
+    descriptor |= limit         & 0x0000FFFF;
 
     _gdt[_gdt_size++] = descriptor;
 }

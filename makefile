@@ -55,6 +55,9 @@ $(BUILD_DIR)/$(OS_ISO): $(ISO_DIR) $(BIN_DIR)/$(OS_BIN)
 
 all: $(BUILD_DIR)/$(OS_ISO)
 
+all-debug: $(BUILD_DIR)/$(OS_ISO)
+	objdump -d $(BIN_DIR)/$(OS_BIN) > $(BIN_DIR)/$(OS_NAME)dump.txt
+
 clean:
 	rm -rf $(BUILD_DIR)
 

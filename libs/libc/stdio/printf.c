@@ -13,21 +13,19 @@ int printf(const char* restrict format, ...) {
         if(*format == '%'){
             format++;
 
-            if(*format == 'd') {
-                int num = va_arg(ap, int);
+            if(*format == 'c') {
+                char c = (char)va_arg(ap, int);
+                terminal_putchar(c);
 
             } else if (*format == 's')
             {
                 char * str = va_arg(ap, char *);
-                
+                terminal_putstr(str);
             }
-            
-
+    
         }else {
-            
+            terminal_putchar(format[0]);
         }
-
-
         format++;
     }
 

@@ -1,4 +1,4 @@
-#include <arch/i386/multiboot.h>
+#include <arch/i386/multiboot_number.h>
 
 #define STACK_SIZE  0x4000
 
@@ -94,6 +94,11 @@
         ret
         
     enable_paging:
-        /* TODO */
+        /* 32-Bit paging
+        CR0.PG = 1
+        CR4.PAE = 0
+        upper 20 bits of CR3 stores the address of page derictory
+
+        */
 
         ret

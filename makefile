@@ -21,7 +21,7 @@ O := -O2
 CFLAGS := -std=gnu99 -ffreestanding $(O) -Wall -Wextra
 LDFLAGS := -ffreestanding $(O) -nostdlib -lgcc
 
-SOURCE_FILES := $(shell find . -name "*.[cS]")
+SOURCE_FILES := $(shell find . -name "*.[csS]")
 SRC := $(patsubst ./%, $(OBJ_DIR)/%.o, $(SOURCE_FILES))
 
 $(OBJ_DIR):
@@ -36,6 +36,10 @@ $(ISO_DIR):
 	@mkdir -p $(ISO_GRUB_DIR)
 
 $(OBJ_DIR)/%.S.o: %.S
+	@mkdir -p $(@D)
+	$(CC) $(INCLUDE) -MD -c $< -o $@ $(CFLAGS)
+
+$(OBJ_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
 	$(CC) $(INCLUDE) -MD -c $< -o $@ $(CFLAGS)
 

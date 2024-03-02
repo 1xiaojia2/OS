@@ -1,21 +1,25 @@
-#include <arch/i386/gdt.h>
-#include <arch/i386/interrupts/idt.h>
+#include <arch/x86/gdt.h>
+#include <arch/x86/interrupts/idt.h>
 #include <LeeOS/kernel/tty/tty.h>
 #include <libc/stdio.h>
 
 
 void _kernel_init(){
-    _gdt_init();
-    _idt_init();
+    _initGdt();
+    _initIdt();
 }
 
 
 void _kernel_main(){
     terminal_initialize();
+    printf("Hello!\n");
     
-    printf("Hello, kernel world!\n");
-    printf("new line!\n");
+    __asm__("int $0x0");
+    __asm__("int $0x1");
+    __asm__("int $0x2");
+    __asm__("int $0x3");
+    __asm__("int $0x4");
+    __asm__("int $0x5");
+    printf("%s\n", "hello");
 
-    __asm__("int $0");
-    printf("new line!\n");
 }

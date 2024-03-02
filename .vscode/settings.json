@@ -3,6 +3,7 @@
     "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc",
     "files.associations": {
         "*.c": "c",
-        "idt.h": "c"
+        "idt.h": "c",
+        "stdio.h": "c"
     }
 }

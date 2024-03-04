@@ -1,7 +1,7 @@
-#include <arch/x86/gdt.h>
-#include <arch/x86/interrupts/idt.h>
-#include <LeeOS/kernel/tty/tty.h>
-#include <libc/stdio.h>
+#include <kernel/gdt.h>
+#include <kernel/idt.h>
+#include <kernel/tty.h>
+#include <stdio.h>
 
 
 void _kernel_init(){

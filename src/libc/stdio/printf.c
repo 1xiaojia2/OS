@@ -1,8 +1,8 @@
-#include <libc/stdio.h>
-#include <libc/string.h>
+#include <stdio.h>
+#include <string.h>
 #include <stddef.h>
 #include <stdarg.h>
-#include <LeeOS/kernel/tty/tty.h>
+#include <kernel/tty.h>
 
 char *int2str(int num) {
     static char str[12]; 

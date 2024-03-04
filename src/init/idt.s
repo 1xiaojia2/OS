@@ -190,6 +190,8 @@
     
     isr_wrapper:
 
+        //TODO: Save all related registers
+
         .extern isr_handler
         call isr_handler
 

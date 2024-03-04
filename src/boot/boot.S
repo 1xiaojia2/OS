@@ -1,4 +1,4 @@
-#include <arch/x86/multiboot_number.h>
+#include <kernel/multiboot.h>
 
 #define STACK_SIZE  0x4000
 

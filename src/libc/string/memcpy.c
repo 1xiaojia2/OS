@@ -1,11 +1,4 @@
-#include <libc/string.h>
-
-size_t strlen(const char* str){
-    size_t length = 0;
-    while (str[length] != '\0')
-        length++;
-    return length;
-}
+#include <string.h>
 
 void *memcpy(void *dest, const void *src, size_t n) {
     char *d = (char *)dest;

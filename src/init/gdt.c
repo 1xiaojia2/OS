@@ -1,4 +1,4 @@
-#include <arch/x86/gdt.h>
+#include <kernel/gdt.h>
 
 struct gdt_entry _gdt[GDT_SIZE];
 struct gdt_ptr_struct _gdt_ptr;

@@ -3,49 +3,49 @@
     isr_stub_\vector:
         cli
         .if \no_err
-            pushl $0    //push 0 as error_code if no err
+            pushl $0x0    //push 0 as error_code if no err
         .endif
         pushl $\vector
         jmp isr_wrapper
 .endm
 
-.section .rodata
+.section .data
 .global isr_table
-.global isr_stub_table
-    isr_table:
-        .extern isr0
-        .extern isr1
-        .extern isr2
-        .extern isr3
-        .extern isr4
-        .extern isr5
-        .extern isr6
-        .extern isr7
-        .extern isr8
-        .extern isr9
-        .extern isr10
-        .extern isr11
-        .extern isr12
-        .extern isr13
-        .extern isr14
-        .extern isr15
-        .extern isr16
-        .extern isr17
-        .extern isr18
-        .extern isr19
-        .extern isr20
-        .extern isr21
-        .extern isr22
-        .extern isr23
-        .extern isr24
-        .extern isr25
-        .extern isr26
-        .extern isr27
-        .extern isr28
-        .extern isr29
-        .extern isr30
-        .extern isr31
+    .extern isr0
+    .extern isr1
+    .extern isr2
+    .extern isr3
+    .extern isr4
+    .extern isr5
+    .extern isr6
+    .extern isr7
+    .extern isr8
+    .extern isr9
+    .extern isr10
+    .extern isr11
+    .extern isr12
+    .extern isr13
+    .extern isr14
+    .extern isr15
+    .extern isr16
+    .extern isr17
+    .extern isr18
+    .extern isr19
+    .extern isr20
+    .extern isr21
+    .extern isr22
+    .extern isr23
+    .extern isr24
+    .extern isr25
+    .extern isr26
+    .extern isr27
+    .extern isr28
+    .extern isr29
+    .extern isr30
+    .extern isr31
 
+
+    isr_table:
         .long isr0
         .long isr1
         .long isr2
@@ -79,75 +79,29 @@
         .long isr30
         .long isr31
 
-    isr_stub_table:
-        .extern isr_stub_0
-        .extern isr_stub_1
-        .extern isr_stub_2
-        .extern isr_stub_3
-        .extern isr_stub_4
-        .extern isr_stub_5
-        .extern isr_stub_6
-        .extern isr_stub_7
-        .extern isr_stub_8
-        .extern isr_stub_9
-        .extern isr_stub_10
-        .extern isr_stub_11
-        .extern isr_stub_12
-        .extern isr_stub_13
-        .extern isr_stub_14
-        .extern isr_stub_15
-        .extern isr_stub_16
-        .extern isr_stub_17
-        .extern isr_stub_18
-        .extern isr_stub_19
-        .extern isr_stub_20
-        .extern isr_stub_21
-        .extern isr_stub_22
-        .extern isr_stub_23
-        .extern isr_stub_24
-        .extern isr_stub_25
-        .extern isr_stub_26
-        .extern isr_stub_27
-        .extern isr_stub_28
-        .extern isr_stub_29
-        .extern isr_stub_30
-        .extern isr_stub_31
-
-        .long isr_stub_0
-        .long isr_stub_1
-        .long isr_stub_2
-        .long isr_stub_3
-        .long isr_stub_4
-        .long isr_stub_5
-        .long isr_stub_6
-        .long isr_stub_7
-        .long isr_stub_8
-        .long isr_stub_9
-        .long isr_stub_10
-        .long isr_stub_11
-        .long isr_stub_12
-        .long isr_stub_13
-        .long isr_stub_14
-        .long isr_stub_15
-        .long isr_stub_16
-        .long isr_stub_17
-        .long isr_stub_18
-        .long isr_stub_19
-        .long isr_stub_20
-        .long isr_stub_21
-        .long isr_stub_22
-        .long isr_stub_23
-        .long isr_stub_24
-        .long isr_stub_25
-        .long isr_stub_26
-        .long isr_stub_27
-        .long isr_stub_28
-        .long isr_stub_29
-        .long isr_stub_30
-        .long isr_stub_31
-
-
 .section .text
+
+    .global _idt_flush
+    _idt_flush:
+        movl 4(%esp), %ecx
+        lidt (%ecx)
+        ret
+    
+    isr_wrapper:
+
+        //TODO: Save all related registers
+
+        //push param for isr_handler
+        pushl %esp
+
+        .extern isr_handler
+        call isr_handler
+        
+        
+        addl $0x0c, %esp
+
+        sti
+        iret
 
     isr_stub 0
     isr_stub 1
@@ -181,22 +135,3 @@
     isr_stub 29
     isr_stub 30, 0
     isr_stub 31
-
-    .global _idtFlush
-    _idtFlush:
-        movl 4(%esp), %ecx
-        lidt (%ecx)
-        ret
-    
-    isr_wrapper:
-
-        //TODO: Save all related registers
-
-        .extern isr_handler
-        call isr_handler
-
-        addl $0x08, %esp
-
-        sti
-        iret
-

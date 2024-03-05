@@ -29,10 +29,10 @@ struct gdt_ptr_struct
 
 #define GDT_FLAGS               0xC0
 
-extern void _gdtFlush(struct gdt_ptr_struct *addr);
+extern void _gdt_flush(struct gdt_ptr_struct *addr);
 
-void _setGdtEntry(int index, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
+void _set_gdt_entry(int index, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
 
-void _initGdt();
+void _init_gdt();
 
 #endif  /* _I386_GDT_H */

@@ -27,18 +27,18 @@ struct isr_regs
     uint32_t eip;
     uint16_t cs;
     uint32_t eflags;
-}__attribute__((packed));
+};
 
 
 #define IDT_SIZE       256
 
 #define IDT_INTR_ACCESS_DPL0 0x8E
 
-extern void _idtFlush(struct idt_ptr_struct *addr);
+extern void _idt_flush(struct idt_ptr_struct *addr);
 
-void _setIdtEntry(uint8_t vector, void* isr, uint16_t segment_selector, uint8_t access);
+void _set_idt_entry(uint8_t vector, void* isr, uint16_t segment_selector, uint8_t access);
 
-void _initIdt();
+void _init_idt();
 
 extern void isr_stub_0();
 extern void isr_stub_1();

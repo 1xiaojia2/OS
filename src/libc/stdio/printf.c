@@ -56,7 +56,7 @@ int va_print(char *buffer, const char *format, int *n, va_list *ap) {
 }
 
 
-int printf(const char* restrict format, ...) {
+int printf(const char* format, ...) {
     char buffer[1024];
     va_list ap;
     va_start(ap, format);

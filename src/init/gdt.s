@@ -1,7 +1,7 @@
 .section .text
-.global _gdtFlush
+.global _gdt_flush
 
-_gdtFlush:
+_gdt_flush:
     movl 4(%esp), %ecx
     lgdt (%ecx)
 

@@ -1,18 +1,19 @@
-#ifndef _TTY_TTY_H
-#define _TTY_TTY_H
+#ifndef _TTY_H
+#define _TTY_H
+
+#define VGA_TEXT_MODE 1
 
 #include <stddef.h>
-#include "vag.h"
+#include <stdint.h>
+#include <kernel/vga.h>
 
-void terminal_initialize();
 
-void terminal_clear();
 
-void terminal_set_color(uint8_t color);
-
-void terminal_putchar(char c);
-
-void terminal_putstr(const char* data);
+void tty_set_color(uint8_t color);
+void tty_init();
+void tty_write(const char *s);
+void tty_read(void *dest, size_t offset, size_t length);
+void tty_cls();
 
 
 #endif

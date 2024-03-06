@@ -1,79 +1,77 @@
 #include <kernel/tty.h>
 #include <string.h>
 
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
-static uint16_t* const VGA_MEMORY = (uint16_t*) 0xB8000;
- 
-static size_t terminal_row;
-static size_t terminal_column;
-static uint8_t terminal_color;
-static uint16_t* terminal_buffer;
+static size_t offset;
+static uint8_t current_color;
+static const uint8_t default_color = VGA_COLOR_LIGHT_GREY | VGA_COLOR_BLACK << 4;
+static uint16_t* const buffer = (uint16_t*)VGA_MEMORY_START;
 
-void terminal_scroll_up(size_t line);
 
-void terminal_initialize(){
-    terminal_column = 0;
-    terminal_row = 0;
-    terminal_buffer = VGA_MEMORY;
-    terminal_color = vga_set_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
-
-    for (size_t offset = 0; offset < VGA_WIDTH * VGA_HEIGHT; ++offset)
-        terminal_buffer[offset] = vga_entry(' ', terminal_color);
+void tty_set_color(uint8_t color){
+    current_color = color;
 }
 
-void terminal_clear(){
-    terminal_column = 0;
-    terminal_row = 0;
-    for (size_t offset = 0; offset < VGA_WIDTH * VGA_HEIGHT; ++offset)
-        terminal_buffer[offset] = vga_entry(' ', terminal_color);
+void tty_scroll_up(){
+    for (size_t i = VGA_WIDTH; i < VGA_ENTRY_LIMIT; i++)
+        buffer[i - VGA_WIDTH] = buffer[i];
+    for (size_t i = VGA_ENTRY_LIMIT - VGA_WIDTH; i < VGA_ENTRY_LIMIT; i++)
+        buffer[i] = vga_entry(' ', current_color);
+    offset = VGA_ENTRY_LIMIT - VGA_WIDTH;
 }
 
-void terminal_set_color(uint8_t color){
-    terminal_color = color;
+void check(){
+    if(offset < VGA_ENTRY_LIMIT)
+        return;
+    tty_scroll_up();
 }
 
-void terminal_putchar(char c){
-    if(c == '\n'){
-        terminal_column = 0;
-
-        if(++terminal_row == VGA_HEIGHT) 
-            terminal_scroll_up(1);
-    }
-    
-    // TODO: other escape character
-
-    else{
-        size_t offset = terminal_row * VGA_WIDTH + terminal_column;
-
-        terminal_buffer[offset] = vga_entry(c, terminal_color);
-    
-        if(++terminal_column == VGA_WIDTH) {
-            terminal_column = 0;
-        
-            if(++terminal_row == VGA_HEIGHT) 
-                terminal_scroll_up(1);
-        }
+void new_line(){
+    size_t remainder = VGA_WIDTH - (offset % VGA_WIDTH);
+    for (size_t i = 0; i < remainder; i++)
+    {
+        buffer[offset++] = vga_entry(' ', current_color);
+        check();
     }
 }
 
-void terminal_putstr(const char* str){
-    size_t length = strlen(str);
-    
-    for (size_t index = 0; index < length; index++)
-        terminal_putchar(str[index]);
+void tty_putchar_at(char c, size_t i){
+    buffer[i] = vga_entry(c, current_color);
+    check();
 }
 
-void terminal_scroll_up(size_t line) {
-    size_t offset = line  * VGA_HEIGHT;
-    /* edge = (height - line ) * width*/
-    size_t edge = (VGA_HEIGHT - line ) * VGA_WIDTH;
-    
-    for (size_t index = 0; index < edge; ++index)
-        terminal_buffer[index] = terminal_buffer[index + offset];
-
-    for (size_t index = edge; index < VGA_HEIGHT * VGA_WIDTH; ++index)
-        terminal_buffer[index] = vga_entry(' ', terminal_color);
-    
-    terminal_row = terminal_row - line  > 0 ? terminal_row - line : 0;
+void tty_putchar(char c) {
+    switch (c)
+    {
+    case '\n':
+        new_line();
+        break;
+    default:
+        tty_putchar_at(c, offset++);
+        break;
+    }   
 }
+
+void tty_init(){
+    offset = 0;
+    current_color = default_color;
+    for (size_t i = 0; i < VGA_ENTRY_LIMIT; i++)
+        buffer[i] = vga_entry(' ', current_color);
+
+}
+void tty_write(const char *s){
+    size_t length = strlen(s);
+    for (size_t i = 0; i < length; i++)
+        tty_putchar(s[i]);
+}
+
+void tty_read(void *dest, size_t offset, size_t length){
+    memcpy(dest, buffer + offset, length);
+}
+
+void tty_cls(){
+    uint8_t color = current_color;
+    tty_init();
+    tty_set_color(color);
+}
+
+

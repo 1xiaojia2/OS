@@ -1,45 +1,36 @@
-#include <kernel/multiboot.h>
+#define MULTIBOOT_HEADER_MAGIC                  0xE85250D6
+#define MULTIBOOT_HEADER_ARCHITECTURE_I386      0
+#define MULTIBOOT_HEADER_ALIGN                  8
+#define HEADER_LENGTH(from, to)                 (to - from)
+#define CHECKSUM(magic, arch, length)           -(magic + arch + length)
 
-#define STACK_SIZE  0x4000
+#define STACK_SIZE                              0x4000
+
+
 
 .section .multiboot
-    .align  8
+.align  MULTIBOOT_HEADER_ALIGN
     multiboot_header:
         .long   MULTIBOOT_HEADER_MAGIC
         .long   MULTIBOOT_HEADER_ARCHITECTURE_I386
-        .long   multiboot_header_end - multiboot_header
-        .long   -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_ARCHITECTURE_I386 + multiboot_header_end - multiboot_header)
- 
-    multiboot_header_tag_end:
-        .short  MULTIBOOT_HEADER_TAG_END_TYPE
-        .short  0
-        .long   MULTIBOOT_HEADER_TAG_END_SIZE
+        .long   HEADER_LENGTH(multiboot_header, multiboot_header_end)
+        .long   CHECKSUM(MULTIBOOT_HEADER_MAGIC, MULTIBOOT_HEADER_ARCHITECTURE_I386, HEADER_LENGTH(multiboot_header, multiboot_header_end))
     multiboot_header_end:
 
 .section .bss
-    .align  16
+.align  16
     stack_bottom:
         .skip   STACK_SIZE
     stack_top:
 
 .section .text
-    .global _start
+.global _start
     _start:
         movl $stack_top, %esp
 
-        call _kernel_init
+        pushl %ebx
+        call _kernel_main
 
-    enable_paging:
-        /* 32-Bit paging
-        CR0.PG = 1
-        CR4.PAE = 0
-        upper 20 bits of CR3 stores the address of page derictory
-
-        */
-        
-    
-    pushl %ebx
-    call _kernel_main
         cli
     loop:
         hlt

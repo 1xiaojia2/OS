@@ -1,7 +1,11 @@
-#ifndef _VGA_H
-#define _VGA_H
+#ifdef VGA_TEXT_MODE
 #include <stdint.h>
 #include <stddef.h>
+
+#define VGA_MEMORY_START 	0xB8000
+#define VGA_WIDTH 			80
+#define VGA_HEIGHT			25
+#define VGA_ENTRY_LIMIT		2000
 
 enum vga_color {
     VGA_COLOR_BLACK = 0,
@@ -22,10 +26,11 @@ enum vga_color {
 	VGA_COLOR_WHITE = 15,
 };
 
+
 static inline uint8_t vga_set_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
 }
- 
+
 static inline uint16_t vga_entry(unsigned char c, uint8_t attributes) {
 	return (uint16_t) c | (uint16_t) attributes << 8;
 }

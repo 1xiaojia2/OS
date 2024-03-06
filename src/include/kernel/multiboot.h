@@ -14,6 +14,8 @@
 #define MULTIBOOT_INFO_ALIGN                    0x00000008
 
 /*  Flags set in the ’flags’ member of the multiboot header. */
+
+
 /*
 static char *mb_tag_type_description[] = {
     "",

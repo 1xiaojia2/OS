@@ -9,6 +9,64 @@
         jmp isr_wrapper
 .endm
 
+.section .text
+
+    .global _idt_flush
+    _idt_flush:
+        movl 4(%esp), %ecx
+        lidt (%ecx)
+        ret
+    
+    isr_wrapper:
+
+        //TODO: Save all related registers
+
+        //push param for isr_handler
+        pushl %esp
+
+        .extern isr_handler
+        call isr_handler
+        
+        
+        addl $0x0c, %esp
+
+        sti
+        iret
+
+    isr_stub 0
+    isr_stub 1
+    isr_stub 2
+    isr_stub 3
+    isr_stub 4
+    isr_stub 5
+    isr_stub 6
+    isr_stub 7
+    isr_stub 8, 0
+    isr_stub 9
+    isr_stub 10, 0
+    isr_stub 11, 0
+    isr_stub 12, 0
+    isr_stub 13, 0
+    isr_stub 14, 0
+    isr_stub 15
+    isr_stub 16
+    isr_stub 17, 0
+    isr_stub 18
+    isr_stub 19
+    isr_stub 20
+    isr_stub 21
+    isr_stub 22
+    isr_stub 23
+    isr_stub 24
+    isr_stub 25
+    isr_stub 26
+    isr_stub 27
+    isr_stub 28
+    isr_stub 29
+    isr_stub 30, 0
+    isr_stub 31
+
+
 .section .data
 .global isr_table
     .extern isr0
@@ -78,60 +136,3 @@
         .long isr29
         .long isr30
         .long isr31
-
-.section .text
-
-    .global _idt_flush
-    _idt_flush:
-        movl 4(%esp), %ecx
-        lidt (%ecx)
-        ret
-    
-    isr_wrapper:
-
-        //TODO: Save all related registers
-
-        //push param for isr_handler
-        pushl %esp
-
-        .extern isr_handler
-        call isr_handler
-        
-        
-        addl $0x0c, %esp
-
-        sti
-        iret
-
-    isr_stub 0
-    isr_stub 1
-    isr_stub 2
-    isr_stub 3
-    isr_stub 4
-    isr_stub 5
-    isr_stub 6
-    isr_stub 7
-    isr_stub 8, 0
-    isr_stub 9
-    isr_stub 10, 0
-    isr_stub 11, 0
-    isr_stub 12, 0
-    isr_stub 13, 0
-    isr_stub 14, 0
-    isr_stub 15
-    isr_stub 16
-    isr_stub 17, 0
-    isr_stub 18
-    isr_stub 19
-    isr_stub 20
-    isr_stub 21
-    isr_stub 22
-    isr_stub 23
-    isr_stub 24
-    isr_stub 25
-    isr_stub 26
-    isr_stub 27
-    isr_stub 28
-    isr_stub 29
-    isr_stub 30, 0
-    isr_stub 31

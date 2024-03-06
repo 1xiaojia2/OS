@@ -64,9 +64,11 @@ void tty_write(const char *s){
         tty_putchar(s[i]);
 }
 
-void tty_read(void *dest, size_t offset, size_t length){
-    memcpy(dest, buffer + offset, length);
+void tty_read(char *dest, size_t offset, size_t length) {
+    for (size_t i = 0; i < length; i++)
+        dest[i] = buffer[offset + i] & 0xFF;
 }
+
 
 void tty_cls(){
     uint8_t color = current_color;

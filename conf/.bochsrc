@@ -1,3 +1,5 @@
+romimage: file=/usr/local/share/bochs/BIOS-bochs-latest
+vgaromimage: file=/usr/local/share/bochs/VGABIOS-lgpl-latest
 ata0-master: type=cdrom, path="build/R.iso", status=inserted
-
+display_library: x, options = "gui_debug"
 boot: cdrom

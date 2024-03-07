@@ -6,7 +6,11 @@
 
 #define STACK_SIZE                              0x4000                      
 
-       
+.extern _kernel_start
+.extern _kernel_end
+.extern _kernel_main
+
+
 .section .multiboot 
 .align  8
     multiboot_header:
@@ -21,17 +25,26 @@
     multiboot_header_end:
 
 
-.section .bss
+.section .boot_stack, "aw" @nobits
 .align  16
     stack_bottom:
         .skip   STACK_SIZE
     stack_top:
 
+.section .bss
+.align 4096
+    boot_page_directory:
+        .skip 4096
+    boot_page_table1:
+        .skip 4096
+
+
 
 .section .boot, "ax"
 .global _start
     _start:
-        movl $(page_directory - 0xC0000000), %ecx
+        
+
 
         movl %ecx, %cr3
 
@@ -48,38 +61,13 @@
 
 
 .section .text
-higher_half:
-    movl $stack_top, %esp 
-    pushl %ebx
-    .extern _kernel_main
-    call _kernel_main
+    higher_half:
+        movl $stack_top, %esp 
+        pushl %ebx
+        
+        call _kernel_main
 
-    cli
-    loop:
-        hlt
-        jmp loop
-
-
-
-.section .data
-.global page_directory
-.align 4096
-    
-    page_directory:
-    /*
-    * We initically enable 4 MiB paging for convience.Then implement 
-    * a identity mapping for the first 4 MiB so that we can jump to 
-    * high half kernel without addtional steps.
-    */
-    .long 0x83 
-    .rept 768 - 1
-        .long 0
-    .endr
-    /* 
-    * Map 0xC0000000 to 0x0
-    */
-    .long (0 << 22) | 0x83
-    
-    .rept 256 - 1
-        .long 0
-    .endr
+        cli
+        loop:
+            hlt
+            jmp loop

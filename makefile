@@ -5,6 +5,11 @@ OS_ISO = $(OS_NAME).iso
 
 CC := i686-elf-gcc
 AS := i686-elf-as
+GDB := i686-elf-gdb
+
+CONF_DIR := conf
+GDB_CONF := $(CONF_DIR)/.gdbinit
+BOCHS_CONF := $(CONF_DIR)/.bochsrc
 
 BUILD_DIR := build
 OBJ_DIR := $(BUILD_DIR)/obj
@@ -13,7 +18,7 @@ ISO_DIR := $(BUILD_DIR)/iso
 ISO_BOOT_DIR := $(ISO_DIR)/boot
 ISO_GRUB_DIR := $(ISO_DIR)/boot/grub
 
-INCLUDE_DIR := src/include
+INCLUDE_DIR := include
 INCLUDE := $(patsubst %,-I%,${INCLUDE_DIR})
 
 O := -O0
@@ -47,7 +52,7 @@ $(OBJ_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(INCLUDE) -c $< -o $@ $(CFLAGS)
 
-$(BIN_DIR)/$(OS_BIN): $(OBJ_DIR) $(BIN_DIR) $(SRC)
+$(BIN_DIR)/$(OS_BIN): $(OBJ_DIR) $(BIN_DIR) $(SRC) linker.ld
 	$(CC) -T linker.ld -o $(BIN_DIR)/$(OS_BIN) $(SRC) $(LDFLAGS)
 
 $(BUILD_DIR)/$(OS_ISO): $(ISO_DIR) $(BIN_DIR)/$(OS_BIN)
@@ -66,10 +71,14 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 qemu:
-	qemu-system-i386 -cdrom $(BUILD_DIR)/$(OS_NAME).iso
+	qemu-system-i386 -cdrom $(BUILD_DIR)/$(OS_ISO)
 
 qemu-debug:
-	qemu-system-i386 -s -S -cdrom $(BUILD_DIR)/$(OS_NAME).iso
+	@echo "Starting QEMU with debugging enabled..."
+	@qemu-system-i386 -s -S -cdrom $(BUILD_DIR)/$(OS_ISO) &
+	@sleep 1 
+	@echo "Launching GDB for debugging..."
+	@$(GDB) -x $(GDB_CONF) $(BIN_DIR)/$(OS_BIN)
 
 bochs:
-	bochs -f conf/.bochsrc
+	bochs -f $(BOCHS_CONF)

@@ -2,11 +2,11 @@
 #define _TTY_H
 
 #define VGA_TEXT_MODE 1
+#define TAB 4
 
 #include <stddef.h>
 #include <stdint.h>
 #include <kernel/vga.h>
-
 
 
 void tty_set_color(uint8_t color);

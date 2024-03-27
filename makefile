@@ -18,7 +18,7 @@ ISO_DIR := $(BUILD_DIR)/iso
 ISO_BOOT_DIR := $(ISO_DIR)/boot
 ISO_GRUB_DIR := $(ISO_DIR)/boot/grub
 
-INCLUDE_DIR := include
+INCLUDE_DIR := src/include
 INCLUDE := $(patsubst %,-I%,${INCLUDE_DIR})
 
 O := -O0
@@ -71,7 +71,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 qemu:
-	qemu-system-i386 -cdrom $(BUILD_DIR)/$(OS_ISO)
+	qemu-system-i386 -cdrom $(BUILD_DIR)/$(OS_ISO) 
 
 qemu-debug:
 	@echo "Starting QEMU with debugging enabled..."

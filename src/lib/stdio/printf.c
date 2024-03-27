@@ -5,8 +5,8 @@
 #include <kernel/tty.h>
 
 char *int2str(int num) {
-    char str[12]; 
-    memset(str, 0, 12);
+    char str[32]; 
+    memset(str, 0, 32);
     char *ptr = &str[sizeof(str) - 1];
 
     *ptr = '\0'; 
@@ -20,17 +20,18 @@ char *int2str(int num) {
 }
 
 char *dec2hex(int num) {
-    char str[12]; 
-    memset(str, 0, 12);
+    unsigned int n = num;
+    char str[32]; 
+    memset(str, 0, 32);
     char *ptr = &str[sizeof(str) - 1];
 
     *ptr = '\0'; 
 
     do {
-        int remainder = num % 16;
+        int remainder = n % 16;
         *--ptr = remainder < 10 ?  '0' + remainder : 'a' + (remainder - 10);
-        num /= 16;
-    } while (num != 0);
+        n /= 16;
+    } while (n != 0);
     return ptr;
 }
 
@@ -56,7 +57,7 @@ int va_print(char *buffer, const char *format, int *n, va_list *ap) {
             str = int2str(va_arg(*ap, int));
             break;
         case 'p':   
-            str = int2str((int)va_arg(*ap, void *)); 
+            str = dec2hex((unsigned int)va_arg(*ap, void *)); 
             break;
         case 'x':
             str = dec2hex(va_arg(*ap, int));

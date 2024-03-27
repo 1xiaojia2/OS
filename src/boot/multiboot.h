@@ -3,8 +3,6 @@
 #define HEADER_LENGTH(from, to)                 (to - from)
 #define CHECKSUM(magic, arch, length)           -(magic + arch + length)
 
-#define MULTIBOOT_START_ADDRESS                 0x00100000
-
 #define MULTIBOOT_HEADER_ALIGN                  8
 
 #define MULTIBOOT_TAG_TYPE_MMAP              6
@@ -22,6 +20,3 @@
 #define MULTIBOOT_HEADER_TAG_RELOCATABLE  10
 
 #define MULTIBOOT_HEADER_TAG_OPTIONAL 1
-
-
-#define STACK_SIZE                              0x4000      

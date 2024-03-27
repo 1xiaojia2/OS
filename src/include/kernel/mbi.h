@@ -1,20 +1,5 @@
-#define MULTIBOOT_SEARCH                        32768
-
-
-/*  The magic field should contain this. */
-#define MULTIBOOT2_HEADER_MAGIC                 0xe85250d6
-
-/*  This should be in %eax. */
-#define MULTIBOOT2_BOOTLOADER_MAGIC             0x36d76289
-
-/*  Alignment of multiboot modules. */
-#define MULTIBOOT_MOD_ALIGN                     0x00001000
-
-/*  Alignment of the multiboot info structure. */
-#define MULTIBOOT_INFO_ALIGN                    0x00000008
-
-/*  Flags set in the ’flags’ member of the multiboot header. */
-
+#ifndef _MBI_H
+#define _MBI_H 1
 
 /*
 static char *mb_tag_type_description[] = {
@@ -172,47 +157,6 @@ struct multiboot_tag_vbe
   struct multiboot_vbe_mode_info_block vbe_mode_info;
 };
 
-struct multiboot_tag_framebuffer_common
-{
-  multiboot_uint32_t type;
-  multiboot_uint32_t size;
-
-  multiboot_uint64_t framebuffer_addr;
-  multiboot_uint32_t framebuffer_pitch;
-  multiboot_uint32_t framebuffer_width;
-  multiboot_uint32_t framebuffer_height;
-  multiboot_uint8_t framebuffer_bpp;
-
-#define MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED 0
-#define MULTIBOOT_FRAMEBUFFER_TYPE_RGB     1
-#define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT     2
-
-  multiboot_uint8_t framebuffer_type;
-  multiboot_uint16_t reserved;
-};
-
-struct multiboot_tag_framebuffer
-{
-  struct multiboot_tag_framebuffer_common common;
-
-  union
-  {
-    struct
-    {
-      multiboot_uint16_t framebuffer_palette_num_colors;
-      struct multiboot_color framebuffer_palette[0];
-    };
-    struct
-    {
-      multiboot_uint8_t framebuffer_red_field_position;
-      multiboot_uint8_t framebuffer_red_mask_size;
-      multiboot_uint8_t framebuffer_green_field_position;
-      multiboot_uint8_t framebuffer_green_mask_size;
-      multiboot_uint8_t framebuffer_blue_field_position;
-      multiboot_uint8_t framebuffer_blue_mask_size;
-    };
-  };
-};
 
 struct multiboot_tag_elf_sections
 {
@@ -313,3 +257,7 @@ struct multiboot_tag_load_base_addr
   multiboot_uint32_t size;
   multiboot_uint32_t load_base_addr;
 };
+
+
+
+#endif

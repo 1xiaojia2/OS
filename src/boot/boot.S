@@ -1,8 +1,12 @@
 #include "multiboot.h"
 
+#define KERNEL_BASE 0xC0000000
+#define BOOT_STACK_SIZE  0x4000
+
 .extern setup, kernel_init
+.extern page_directory, kernel_page_tables
 .global _start
-.global boot_page_directory
+.global boot_stack_top
 
 .section .multiboot, "a"
 .align  MULTIBOOT_HEADER_ALIGN
@@ -27,53 +31,56 @@ multiboot_header_tag_end:
     .long 8
 multiboot_header_end:
 
-
-.section .boot.bss, "aw", @nobits    
-.align  16
-.skip   STACK_SIZE
-stack_top:
-
-.align 4096
-boot_page_directory:
-    .skip 4096
+#--------------------------------------------------
 
 .section .boot.text, "ax"
 _start:
 
-    # Identity mapping for first 8 MiB.
-    movl $(0 << 22 | 0x83), boot_page_directory - 0xC0000000 + 0 * 4
-    movl $(1 << 22 | 0x83), boot_page_directory - 0xC0000000 + 1 * 4
+    movl $(boot_stack_top - KERNEL_BASE), %esp
+    pushl %ebx
 
-    # Map 8 MiB starting at 0xC0000000 to 0.
-    movl $(0 << 22 | 0x83), boot_page_directory - 0xC0000000 + 768 * 4
-    movl $(1 << 22 | 0x83), boot_page_directory - 0xC0000000 + 769 * 4
+    pushl $(kernel_page_tables - KERNEL_BASE)
+    pushl $(page_directory - KERNEL_BASE)
+
+    call hhk
+
+    addl $0x08, %esp
     
-    movl $(boot_page_directory - 0xC0000000), %ecx
+    movl $(page_directory - KERNEL_BASE), %ecx
     movl %ecx, %cr3
-
-    # Enable PSE.
-    movl %cr4, %ecx
-    orl $0x10, %ecx
-    movl %ecx, %cr4
     
     movl %cr0, %ecx
     orl $0x80000000, %ecx
     movl %ecx, %cr0
 
-    lea higher_half, %ecx
+    pop %ebx
+
+    lea high_half, %ecx
     jmp *%ecx
 
+
 .section .text
-higher_half:
+high_half:
+    /* 
+    * By now, we have entirly entered higher half kernel.
+    * We should first setup necessery data structures for x86. 
+    */
 
-    movl $stack_top, %esp 
+    /* Reload esp because now we are in hhk. */
+    movl $boot_stack_top, %esp
     pushl %ebx
-    
+
     call setup
-
+    
+    /* Time to enter kernel world. */
     call kernel_init
-
-    cli
+    CLI
     cy:
         hlt
         jmp cy
+
+
+.section .boot.bss, "aw", @nobits
+.align  16
+.skip   BOOT_STACK_SIZE
+boot_stack_top:

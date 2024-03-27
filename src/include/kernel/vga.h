@@ -1,8 +1,9 @@
 #ifdef VGA_TEXT_MODE
 #include <stdint.h>
 #include <stddef.h>
+#include <asm/io.h>
 
-#define VGA_MEMORY_START 	0xB8000
+#define VGA_MEMORY_START 	0xC00B8000
 #define VGA_WIDTH 			80
 #define VGA_HEIGHT			25
 #define VGA_ENTRY_LIMIT		2000
@@ -33,6 +34,13 @@ static inline uint8_t vga_set_color(enum vga_color fg, enum vga_color bg) {
 
 static inline uint16_t vga_entry(unsigned char c, uint8_t attributes) {
 	return (uint16_t) c | (uint16_t) attributes << 8;
+}
+
+static inline void vga_update_cursor(uint32_t curosr){
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (curosr & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((curosr >> 8) & 0xFF));
 }
 
 #endif

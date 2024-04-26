@@ -1,122 +1,26 @@
 #include <kernel/memory.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
-
+#include <kernel/syslog.h>
+#include <stddef.h>
 
 extern pde_t page_directory[1024];
 extern pte_t kernel_page_tables[256 * 1024];
 
-uint32_t kernel_start = (uint32_t)(&_kernel_start);
-uint32_t kernel_end = (uint32_t)(&_kernel_end);
 
-
-static inline void invalidate(void * address){
-    asm volatile("invlpg %0" : :"m"(address));
-}
-
-
-
-void init_pd(){}
-
-
-void kernel_map_page(uint32_t va, uint32_t pa, uint32_t length, 
-                        uint8_t pte_flag, uint8_t pde_flag){
-
-    uint32_t from, to, map_to;
-    
-    // Set page tables
-    from = PT_OFFSET(va) - PT_OFFSET(KERNEL_BASE);
-    to = PT_OFFSET(va + length) - PT_OFFSET(KERNEL_BASE) + 1;
-    map_to = PT_OFFSET(pa);
-    for (size_t i = from; i < to; i++)
-        if(!IS_PRES(kernel_page_tables[i]))
-            kernel_page_tables[i] = (pte_t)((map_to + i) << 12) | pte_flag;
-        else
-            //TODO: panic
-            printf("PT Have mapped\n");
-    
-    // Set page directory
-    from = PD_OFFSET(PT_OFFSET(va)) - PD_OFFSET(PT_OFFSET(KERNEL_BASE));
-    to = PD_OFFSET(PT_OFFSET(va + length)) - PD_OFFSET(PT_OFFSET(KERNEL_BASE)) + 1;
-    for (size_t i = from; i < to; i++)
-        if(!IS_PRES(page_directory[i]))
-            page_directory[i + PD_OFFSET(PT_OFFSET(KERNEL_BASE))] = 
-                (pde_t)(kernel_page_tables[i * 1024]) | pde_flag;
-        else
-            //TODO: panic
-            printf("PD Have mapped\n");
-}
-
-
-void init_memory(uint32_t address){
-    printf("===MEMORY_INITIALIZATION===\n");
-
-
+void init_memory(unsigned address){
+ 
     // Unmap identity mapped pages.
-    printf("kernel start = 0x%x, kernel end = 0x%x\n", kernel_start, kernel_end);
-    for (size_t i = 0; i < PD_OFFSET(PT_OFFSET(kernel_end - KERNEL_BASE)) + 1; i++)
+    for (size_t i = 0; i < PDE_INDEX(kernel_end) + 1; i++){
         page_directory[i] = NOT_PRESENT;
-    invalidate((unsigned *)0);
-
-    parse_mbi(address);
-
-    
-    
-    //kernel_map_page(0xFEE00000, 0xFEE00000, 0x11FFFFF, 3, 3);
-    
-    printf("=========MEM END============\n");
-
-    
-}
-
-void parse_mbi(uint32_t address){
-    address += KERNEL_BASE;
-    struct multiboot_tag *tag;
-
-    for (tag = (struct multiboot_tag *) (address + 8);
-       tag->type != MULTIBOOT_TAG_TYPE_END;
-       tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
-                                       + ((tag->size + 7) & ~7)))
-    {
-        printf("tag:%d\n", tag->type);
-      switch (tag->type)
-        {
-        case MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME:
-          printf ("Boot loader name = %s\n",
-                  ((struct multiboot_tag_string *) tag)->string);
-          break;
-        case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
-          printf ("mem_lower = %uKB, mem_upper = %uKB\n",
-                  ((struct multiboot_tag_basic_meminfo *) tag)->mem_lower,
-                  ((struct multiboot_tag_basic_meminfo *) tag)->mem_upper);
-          break;
-        case MULTIBOOT_TAG_TYPE_MMAP:
-          {
-            multiboot_memory_map_t *mmap;
-            printf ("mmap\n");
-            for (mmap = ((struct multiboot_tag_mmap *) tag)->entries;
-                 (multiboot_uint8_t *) mmap 
-                   < (multiboot_uint8_t *) tag + tag->size;
-                 mmap = (multiboot_memory_map_t *) 
-                   ((unsigned long) mmap
-                    + ((struct multiboot_tag_mmap *) tag)->entry_size))
-              printf (" base_addr = 0x%x%x,"
-                      " length = 0x%x%x, type = 0x%x\n",
-                      (unsigned) (mmap->addr >> 32),
-                      (unsigned) (mmap->addr & 0xffffffff),
-                      (unsigned) (mmap->len >> 32),
-                      (unsigned) (mmap->len & 0xffffffff),
-                      (unsigned) mmap->type);
-          }
-          break;
-        }
-
     }
+    flush_tlb();
+
+    pmm_init(address);
+    vmm_init();
+
+
 }
-
-
-
 
 
 /*  I have given up for managing memory by bitmap. 

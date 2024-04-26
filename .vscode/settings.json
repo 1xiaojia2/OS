@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "*.asm": "gas",
+        "pic.h": "c",
+        "stdint.h": "c",
+        "kernel.h": "c",
+        "vga.h": "c",
+        "pit.h": "c",
+        "stdio.h": "c",
+        "stddef.h": "c",
+        "tty.h": "c",
+        "stdarg.h": "c",
+        "io.h": "c",
+        "stdint-gcc.h": "c",
+        "string.h": "c",
+        "stdbool.h": "c",
+        "timer.h": "c",
+        "headers.h": "c",
+        "mbi.h": "c",
+        "syslog.h": "c",
+        "memory.h": "c"
+    },
+    "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc"
+}

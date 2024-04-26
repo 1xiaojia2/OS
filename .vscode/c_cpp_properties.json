@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Cross-compile",
+            "includePath": [
+                "/home/jia/cross_toolchain/cross/lib/gcc/i686-elf/9.4.0/include",
+                "${workspaceFolder}/src/include"
+            ],
+            "defines": [],
+            "compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc"
+        }
+    ],
+    "version": 4
+}

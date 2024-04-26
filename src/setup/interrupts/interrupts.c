@@ -27,10 +27,7 @@ char *interrupt_messages[32] = {
         "Reserved", "Reserved", "Reserved"
 };
 
-static void *interrupt_table[16] = {
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0
-};
+static void *interrupt_table[16];
 
 
 void interrupt_handler(struct isr_regs *regs){ 
@@ -52,4 +49,5 @@ void irq_uninstall_handler(size_t vector){
 
 void exceptions_reserve(struct isr_regs *regs){
     printf("INT %d: %s\n", regs->vector, interrupt_messages[regs->vector]);
+    for(; ;){}
 }

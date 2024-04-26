@@ -22,11 +22,41 @@
 # General steps for interrupts and exceptions
 interrupt_wrapper:
 
+    # Save registers
+    pushl %ds
+
+    pushl %ebp
+    pushl %esp
+    pushl %edi
+    pushl %esi
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
+
+    movl %cr2, %eax
+    pushl %eax
+    
     pushl %esp
 
     call interrupt_handler
 
-    addl $0x0C, %esp
+    addl $0x04, %esp
+
+    pop %eax
+    movl %eax, %cr2
+
+    pop %eax
+    pop %ebx
+    pop %ecx
+    pop %edx
+    pop %esi
+    pop %edi
+    pop %esp
+    pop %ebp
+    pop %ds
+
+    addl $0x08, %esp
     sti
     iret
 

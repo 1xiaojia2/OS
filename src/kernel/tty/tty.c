@@ -10,6 +10,10 @@ void tty_set_color(uint8_t color){
     current_color = color;
 }
 
+uint8_t tty_get_color(){
+    return current_color;
+}
+
 void tty_scroll_up(){
     for (size_t i = VGA_WIDTH; i < VGA_ENTRY_LIMIT; i++)
         vga[i - VGA_WIDTH] = vga[i];
@@ -71,6 +75,13 @@ void tty_write(const char *s){
     size_t length = strlen(s);
     for (size_t i = 0; i < length; i++)
         tty_putchar(s[i]);
+}
+
+void tty_write_with_color(const char *s, uint8_t color){
+    uint8_t pre_color = current_color;
+    tty_set_color(color);
+    tty_write(s);
+    tty_set_color(pre_color);
 }
 
 void tty_read(char *dest, size_t cursor, size_t length) {

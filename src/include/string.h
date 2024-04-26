@@ -9,4 +9,6 @@ void *memcpy(void *dest, const void *src, size_t n);
 
 void memset(void *dest, int value, size_t length);
 
+char *strcpy(char *dest, const char *src);
+
 #endif

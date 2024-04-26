@@ -23,7 +23,7 @@ INCLUDE := $(patsubst %,-I%,${INCLUDE_DIR})
 
 O := -O0
 
-CFLAGS := -std=gnu99 -ffreestanding $(O) -Wall -Wextra
+CFLAGS := -ffreestanding $(O) -Wall -Wextra
 LDFLAGS := -ffreestanding $(O) -nostdlib -lgcc
 
 SOURCE_FILES := $(shell find ./src -name "*.[csS]")

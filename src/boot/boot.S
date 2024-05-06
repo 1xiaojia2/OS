@@ -6,7 +6,7 @@
 .extern setup, kernel_init
 .extern page_directory, kernel_page_tables
 .global _start
-.global boot_stack_top
+.global boot_stack_top, boot_stack_bottom
 
 .section .multiboot, "a"
 .align  MULTIBOOT_HEADER_ALIGN
@@ -82,5 +82,6 @@ high_half:
 
 .section .boot.bss, "aw", @nobits
 .align  16
+boot_stack_bottom:
 .skip   BOOT_STACK_SIZE
 boot_stack_top:

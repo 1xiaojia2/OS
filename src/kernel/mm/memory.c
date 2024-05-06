@@ -1,25 +1,64 @@
-#include <kernel/memory.h>
-#include <stdio.h>
+#include <kernel/mm/memory.h>
 #include <string.h>
 #include <kernel/syslog.h>
 #include <stddef.h>
+#include <kernel/mm/vmm.h>
+#include <kernel/mm/pmm.h>
+#include <kernel/mm/dmm.h>
+#include <kernel/mbi.h>
+#include <kernel/header.h>
 
-extern pde_t page_directory[1024];
-extern pte_t kernel_page_tables[256 * 1024];
+#include <kernel/mm/kmalloc.h>
 
+uint32_t mem_lower;
+uint32_t mem_upper;
+
+extern unsigned boot_stack_bottom;
+extern unsigned boot_stack_top;
 
 void init_memory(unsigned address){
- 
-    // Unmap identity mapped pages.
-    for (size_t i = 0; i < PDE_INDEX(kernel_end) + 1; i++){
-        page_directory[i] = NOT_PRESENT;
-    }
-    flush_tlb();
+    parse_mbi(address);
 
-    pmm_init(address);
+    pmm_init(mem_lower, mem_upper);
     vmm_init();
+    kalloc_init();
+}
 
+void parse_mbi(unsigned address){
+    address += KERNEL_BASE;
+    struct multiboot_tag *tag;
 
+    for (tag = (struct multiboot_tag *) (address + 8);
+       tag->type != MULTIBOOT_TAG_TYPE_END;
+       tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
+                                       + ((tag->size + 7) & ~7)))
+    {
+      switch (tag->type)
+        {
+        case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
+          mem_lower = ((struct multiboot_tag_basic_meminfo *) tag)->mem_lower;
+          mem_upper = ((struct multiboot_tag_basic_meminfo *) tag)->mem_upper + 0x400;
+          mem_lower *= 1024;
+          mem_upper *= 1024;
+          break;
+        // case MULTIBOOT_TAG_TYPE_MMAP:
+        //   {
+        //     multiboot_memory_map_t *mmap;
+        //     for (mmap = ((struct multiboot_tag_mmap *) tag)->entries;
+        //          (multiboot_uint8_t *) mmap 
+        //            < (multiboot_uint8_t *) tag + tag->size;
+        //          mmap = (multiboot_memory_map_t *) 
+        //            ((unsigned long) mmap
+        //             + ((struct multiboot_tag_mmap *) tag)->entry_size)){
+        //         unsigned addr = (unsigned) (mmap->addr & 0xffffffff);
+        //         unsigned length = (unsigned) (mmap->len & 0xffffffff);
+        //         if(mmap->type == 1)
+        //             bitmap_set((addr & 0xFFFFF000), DIV_ROUND_UP(length), FREE);
+        //     }
+        //   }
+        //   break;
+        }
+    }
 }
 
 

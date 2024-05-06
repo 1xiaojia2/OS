@@ -23,7 +23,7 @@ INCLUDE := $(patsubst %,-I%,${INCLUDE_DIR})
 
 O := -O0
 
-CFLAGS := -ffreestanding $(O) -Wall -Wextra
+CFLAGS := -ffreestanding $(O) -Wall -Wextra -g
 LDFLAGS := -ffreestanding $(O) -nostdlib -lgcc
 
 SOURCE_FILES := $(shell find ./src -name "*.[csS]")
@@ -82,3 +82,6 @@ qemu-debug:
 
 bochs:
 	bochs -f $(BOCHS_CONF)
+
+vscode-dbg:
+	@qemu-system-i386 -s -S -cdrom $(BUILD_DIR)/$(OS_ISO)

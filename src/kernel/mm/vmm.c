@@ -1,47 +1,75 @@
-#include <kernel/memory.h>
+#include <kernel/mm/memory.h>
+#include <kernel/mm/vmm.h>
+#include <kernel/mm/pmm.h>
+#include <kernel/mm/dmm.h>
+#include <kernel/header.h>
 #include <kernel/syslog.h>
 #include <string.h>
+#include <stddef.h>
 
 extern pde_t page_directory[1024];
 extern pte_t kernel_page_tables[256 * 1024];
 
-void vmm_test(){
-    char *ptr = vm_alloc(0x1000, 6, 2);
-    strcpy(ptr, "hello, World!");
-    printk(MEMORY, INFO, "ptr: %s", ptr);
-    printk(MEMORY, INFO, "va [%x] -> pa [%x]", ptr, vm_get_pa(ptr));
-    vm_unmap(0x2000, 1);
-}
+static uint32_t pre_alloc_vp;
+
+void *vm_find_free_kp();
 
 void vmm_init(){
-    // Recursive mapping
-    page_directory[1023] = get_pd_addr() | 7;
-    
-    vmm_test();
+    page_directory[1023] = get_current_pd_addr() | 3;
+    vm_pd_init(&page_directory); 
 }
 
-void page_dir_init(pde_t *pd, uint32_t flags){
+void vm_pd_init(pde_t *pd){
+    /* Clear user space. */
+    memset(pd, 0, PDE_INDEX(KERNEL_BASE));
 
-    pd[1023] = ((pde_t)pd) | (flags & 0xFFF) | 0x01;
+    //TODO: Copy kernel space mapping?
 
-
-
+    /* Recursive mapping. */
+    pd[1023] = ((pde_t)vm_v2p(pd)) | 3;
 }
 
-void *vm_alloc(uint32_t va, uint32_t flags, size_t count){
-    for (size_t i = 0; i < count; i++)
-    {
-        uint32_t pa = (uint32_t)pm_alloc();
-        vm_mmap(pa, va+i*PAGE_SIZE, flags);
+// void *vm_find_free_kp(){
+//     pde_t *pd = PD_VA;
+//     for (size_t pd_index = PDE_INDEX(KHEAP_START); pd_index < PDE_INDEX(KHEAP_MAX_BRK); pd_index++){
+//         if(!IS_PRES(pd[pd_index]))
+//             return (void *)(pd_index << 22);
+        
+//         pte_t *pt = PT_VA(pd_index);
+//         for (size_t pt_index = 0; pt_index < 1024; pt_index++)
+//             if(!IS_PRES(pt[pt_index]))
+//                 return (void *)(pd_index << 22 | pt_index << 12);
+//     }
+//     return NULL;
+// }
+
+void *vm_alloc(uint32_t va_base, uint32_t flags){
+    void *pa_base = pm_alloc();
+    if(pa_base == NULL){
+        //TODO: Swap page?
     }
-    return ((void *)(va & ~0xFFF));
+    if(vm_mmap(pa_base, va_base, flags) == 0)
+        return (void *)va_base;
+    return NULL;
 }
 
+void vm_free(void *va){
+    vm_unmap((uint32_t)va);
+}
 
-void vm_mmap(uint32_t pa, uint32_t va, uint32_t flags){
+uint32_t vm_get_page_attr(uint32_t va){
     uint32_t pd_index = PDE_INDEX(va);
     uint32_t pt_index = PTE_INDEX(va);
- 
+    pde_t *pd = PD_VA;
+    pte_t *pt = PT_VA(pd_index);
+    if(!IS_PRES(pd[pd_index])) return 0;
+    if(!IS_PRES(pt[pt_index])) return 0;
+    return pt[pt_index] & 0xFFF;
+}
+
+int vm_mmap(uint32_t pa_base, uint32_t va_base, uint32_t flags){
+    uint32_t pd_index = PDE_INDEX(va_base);
+    uint32_t pt_index = PTE_INDEX(va_base);
     pde_t *pd = PD_VA;
     pte_t *pt = PT_VA(pd_index);
 
@@ -49,43 +77,34 @@ void vm_mmap(uint32_t pa, uint32_t va, uint32_t flags){
         // Create a new PT.
         pte_t new_pt = (pte_t)pm_alloc();
         pd[pd_index] = (new_pt & ~0xFFF) | (flags & 0xFFF) | 0x01;
+        
         memset(pt, 0, PAGE_SIZE);
     }
 
-    if(IS_PRES(pt[pt_index])){
-        printk(MEMORY, WARN, "There has been a mapping for va[0x%x].", va);
-        return ;
-    }
-    pt[pt_index] = (pa & ~0xFFF) | (flags & 0xFFF) | 0x01;
+    if(IS_PRES(pt[pt_index])) return -1;
+    pt[pt_index] = (pa_base & ~0xFFF) | (flags & 0xFFF) | 0x01;
+    return 0;
 }
 
-void vm_unmap(uint32_t va, size_t count){
-    for (size_t i = 0; i < count; i++)
-        vm_unmap_page(va+i*PAGE_SIZE);
-}
-
-void vm_unmap_page(uint32_t va){
-    uint32_t pd_index = PDE_INDEX(va);
-    uint32_t pt_index = PTE_INDEX(va);
+int vm_unmap(uint32_t va_base){
+    uint32_t pd_index = PDE_INDEX(va_base);
+    uint32_t pt_index = PTE_INDEX(va_base);
  
     pde_t *pd = PD_VA;
     pte_t *pt = PT_VA(pd_index);
 
-    if(!IS_PRES(pd[pd_index]) || !IS_PRES(pt[pt_index])){
-        printk(MEMORY, WARN, "NO mapping for va[0x%x].", va);
-        return ;
-    }
-
-    pm_free((void *)pt[pt_index]);
+    if(!IS_PRES(pd[pd_index]) || !IS_PRES(pt[pt_index])) return 1;
+    pm_free(pt[pt_index] >> 12);
     pt[pt_index] = 0;
-    invalidate(va);
+    invalidate(va_base);
+    return 0;
 }
 
 void vm_change_map(uint32_t new_pa, uint32_t va){
 
 }
 
-void *vm_get_pa(uint32_t va){
+void *vm_v2p(uint32_t va){
     uint32_t pd_index = PDE_INDEX(va);
     uint32_t pt_index = PTE_INDEX(va);
 
@@ -99,3 +118,4 @@ void *vm_get_pa(uint32_t va){
 
     return (void *)(PT_ADDR(pt[pt_index]) + (va & 0xFFF));
 }
+

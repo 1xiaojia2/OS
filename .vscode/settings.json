@@ -19,7 +19,12 @@
         "headers.h": "c",
         "mbi.h": "c",
         "syslog.h": "c",
-        "memory.h": "c"
+        "memory.h": "c",
+        "pmm.h": "c",
+        "header.h": "c",
+        "bitmap.h": "c",
+        "vmm.h": "c",
+        "dmm.h": "c"
     },
-    "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc"
+    "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc",
 }

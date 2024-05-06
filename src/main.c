@@ -1,13 +1,9 @@
 #include <kernel/tty.h>
-#include <kernel/memory.h>
+#include <kernel/mm/memory.h>
 #include <stdio.h>
-#include <asm/cpu.h>
 #include <drivers/keryboard.h>
-#include <drivers/timer.h>
+#include <drivers/clock.h>
 #include <drivers/time.h>
-#include <kernel/syslog.h>
-#include <utils.h>
-#include <string.h>
 
 
 void kernel_init(uint32_t address){
@@ -19,6 +15,7 @@ void kernel_init(uint32_t address){
     init_keryboard();
     init_timer();
     init_memory(address);
+    
     for (; ;){
     }
     

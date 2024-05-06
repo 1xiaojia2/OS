@@ -1,27 +1,30 @@
 #ifndef _PIT_H
 #define _PIT_H 1
+#include <stdint.h>
 
-#define PIT_CHANNEL0_PORT    0x40
-#define PIT_CHANNEL1_PORT    0x41
-#define PIT_CHANNEL2_PORT    0x42    /*PC Speaker.*/
-#define PIT_MODE_REGS_PORT   0x43
+typedef enum pit_port{
+    counter0 = 0x40,
+    counter1 = 0x41,
+    counter2 = 0x42,
+    control_word_reg = 0x43,
+} pit_port;
 
-#define SELECT_CHANNEL(channel) (((channel) & 0x02) << 6)
-#define ACCESS_MODE(mode)       (((mode) & 0x02) << 4)
-#define OPERATING_MODE(mode)    (((mode) & 0x03) << 1)
-#define BCD_BINARY_MODE(mode)   ((mode) & 0x01)
+#define PIT_OSCILLATOR      1193182
 
-#define PIT_MODE(sel, acc, oper, bcd_binary)    SELECT_CHANNEL(sel) | ACCESS_MODE(access) | \
-                                                OPERATING_MODE(oper) | BCD_BINARY_MODE(bcd_binary)
-        
+#define SC_0            0
+#define SC_1            1
+#define SC_2            2
+#define SC_READ_BACK    3
 
+#define SELECT_COUNTER(counter) (((counter) & 0x03) << 6)
+#define RW(acc)       (((acc) & 0x03) << 4)
+#define OPERATING_MODE(mode)    (((mode) & 0x07) << 1)
+#define BCD(enable)   ((enable) & 0x01)
 
-enum pit_select_channel{
-    channel_0 = 0,
-    channel_1 = 1,
-    channel_2 = 2,
-    read_back = 3,
-};
+#define CONTROL_WORD_REG(sel, acc, mode, enable)    SELECT_COUNTER(sel) | RW(acc) | \
+                                                OPERATING_MODE(mode) | BCD(enable)
 
+uint32_t read_pit_count(pit_port counter);
+void write_pit_count(pit_port cw, pit_port counter, uint32_t divisor);
 
 #endif

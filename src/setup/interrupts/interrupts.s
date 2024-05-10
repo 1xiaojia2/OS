@@ -6,7 +6,7 @@
             pushl $0x0
         .endif
         pushl $\vector
-        jmp interrupt_wrapper
+        jmp isr_wrapper
 .endm
 
 .macro  irq_stub vector
@@ -15,48 +15,39 @@
         cli
         pushl $0x0
         pushl $(\vector+32)
-        jmp interrupt_wrapper
+        jmp irq_wrapper
 .endm
+
+.extern isr_handler, irq_handler
 
 .section .text
 # General steps for interrupts and exceptions
-interrupt_wrapper:
+isr_wrapper:
+    movl %esp, %eax
+    andl $0xFFFFFFF0, %esp
+    subl $0x10, %esp
+    movl %eax, (%esp)
 
-    # Save registers
-    pushl %ds
-
-    pushl %ebp
-    pushl %esp
-    pushl %edi
-    pushl %esi
-    pushl %edx
-    pushl %ecx
-    pushl %ebx
-    pushl %eax
-
-    movl %cr2, %eax
-    pushl %eax
-    
-    pushl %esp
-
-    call interrupt_handler
-
-    addl $0x04, %esp
+    call isr_handler
 
     pop %eax
-    movl %eax, %cr2
-
-    pop %eax
-    pop %ebx
-    pop %ecx
-    pop %edx
-    pop %esi
-    pop %edi
-    pop %esp
-    pop %ebp
-    pop %ds
-
+    movl %eax, %esp
     addl $0x08, %esp
+    
+    sti
+    iret
+irq_wrapper:
+    movl %esp, %eax
+    andl $0xFFFFFFF0, %esp
+    subl $0x10, %esp
+    movl %eax, (%esp)
+
+    call irq_handler
+
+    pop %eax
+    movl %eax, %esp
+    addl $0x08, %esp
+    
     sti
     iret
 

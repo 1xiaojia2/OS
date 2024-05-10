@@ -42,8 +42,6 @@ void *kmalloc(size_t size){
     {
         if(!GET_BLOCK_STATUS(*header)){
             if(block_avaliable(*header, require_size)){
-                
-                
                 return block_alloc(header, require_size) + HEAD_SIZE;
             }
         }

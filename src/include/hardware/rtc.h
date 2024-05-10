@@ -1,5 +1,7 @@
 #ifndef _RTC_H
 #define _RTC_H
+#include <drivers/time.h>
+
 
 typedef enum rtc_port{
     rtc_address = 0x70,
@@ -20,7 +22,8 @@ typedef enum rtc_port{
 #define REGISTER_B              0x0B
 #define REGISTER_C              0x0C
 #define REGISTER_D              0x0D
+#define CENTURY                 0x32
 
-
+void read_rtc(struct tm *time);
 
 #endif

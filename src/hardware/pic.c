@@ -14,6 +14,9 @@ void pic_remap(){
 
     outb(PIC_MASTER_DATA, PIC_ICW1_ICW4);
     outb(PIC_SLAVE_DATA, PIC_ICW1_ICW4);
+
+    outb(PIC_MASTER_DATA, 0);
+    outb(PIC_SLAVE_DATA, 0);
 }
 
 void pic_sendEOI(uint8_t irq){

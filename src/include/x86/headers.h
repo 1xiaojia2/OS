@@ -5,9 +5,7 @@
 #include <stdint.h>
 
 struct isr_regs
-{   uint32_t cr2;
-    uint32_t eax, ebx, ecx, edx, esi, edi, esp, ebp;
-    uint32_t ds;
+{   
     uint32_t vector;
     uint32_t error_code;
     uint32_t eip;

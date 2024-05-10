@@ -7,6 +7,7 @@
 #include <kernel/mm/dmm.h>
 #include <kernel/mbi.h>
 #include <kernel/header.h>
+#include <stdio.h>
 
 #include <kernel/mm/kmalloc.h>
 
@@ -18,7 +19,6 @@ extern unsigned boot_stack_top;
 
 void init_memory(unsigned address){
     parse_mbi(address);
-
     pmm_init(mem_lower, mem_upper);
     vmm_init();
     kalloc_init();
@@ -40,6 +40,7 @@ void parse_mbi(unsigned address){
           mem_upper = ((struct multiboot_tag_basic_meminfo *) tag)->mem_upper + 0x400;
           mem_lower *= 1024;
           mem_upper *= 1024;
+        //   printf("mem_lower: 0x%x, mem_upper: 0x%x.\n",mem_lower, mem_upper);
           break;
         // case MULTIBOOT_TAG_TYPE_MMAP:
         //   {
@@ -52,10 +53,11 @@ void parse_mbi(unsigned address){
         //             + ((struct multiboot_tag_mmap *) tag)->entry_size)){
         //         unsigned addr = (unsigned) (mmap->addr & 0xffffffff);
         //         unsigned length = (unsigned) (mmap->len & 0xffffffff);
-        //         if(mmap->type == 1)
-        //             bitmap_set((addr & 0xFFFFF000), DIV_ROUND_UP(length), FREE);
+        //         printf("addr: 0x%x, length: 0x%x, type: 0x%x\n", addr, length, 
+        //         (unsigned)(mmap->type));
         //     }
         //   }
+        //   printf("mmap end\n");
         //   break;
         }
     }

@@ -2,7 +2,7 @@ ENTRY(_start)
 SECTIONS {
     # 2 MiB is better, mbi can be stored below the start address of the kernel
     
-    . = 2M;
+    . = 0x00200000;
     _kernel_start = .;
     
         

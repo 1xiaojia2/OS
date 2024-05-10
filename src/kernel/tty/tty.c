@@ -69,7 +69,6 @@ void tty_init(){
     current_color = default_color;
     for (size_t i = 0; i < VGA_ENTRY_LIMIT; i++)
         vga[i] = vga_entry(' ', current_color);
-
 }
 void tty_write(const char *s){
     size_t length = strlen(s);

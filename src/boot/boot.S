@@ -55,8 +55,7 @@ _start:
 
     pop %ebx
 
-    lea high_half, %ecx
-    jmp *%ecx
+    jmp high_half
 
 
 .section .text
@@ -69,12 +68,11 @@ high_half:
     /* Reload esp because now we are in hhk. */
     movl $boot_stack_top, %esp
     pushl %ebx
-
-    call setup
     
     /* Time to enter kernel world. */
     call kernel_init
-    CLI
+    
+    cli
     cy:
         hlt
         jmp cy

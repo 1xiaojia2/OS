@@ -5,10 +5,13 @@ INSTALL_ADDR=$HOME
 
 # Download source code
 cd $INSTALL_ADDR
-if ! git clone https://github.com/bochs-emu/Bochs.git; then
+if ! wget https://sourceforge.net/projects/bochs/files/bochs/2.6.7/bochs-2.6.7.tar.gz/download then
     echo "Failed to clone the Bochs repository. Please configure your Git."
     exit 1
 fi
+
+tar -xvf "binutils-$BINUTILS_VERSION.tar.gz"
+rm "binutils-$BINUTILS_VERSION.tar.gz"
 
 # Navigate to Bochs Directory
 cd Bochs/bochs

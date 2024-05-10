@@ -22,7 +22,7 @@ void hhk(uint32_t *page_directory, uint32_t *page_tables) {
     to = PT_OFFSET(kernel_end);
     for (size_t i = from; i <= to; i++){
         /* Each page table entry is set to present (P) and writable (W). */
-        page_tables[i] = (i << 12) + 0x03;
+        page_tables[i] = (i << 12) | 0x03;
     }
 
     /* Map the page_tables to the page_directory. */
@@ -31,18 +31,10 @@ void hhk(uint32_t *page_directory, uint32_t *page_tables) {
     // Index of the last pde is the pde containing the address of kernel_end.
     to = PD_OFFSET(PT_OFFSET(kernel_end)); 
     for (size_t i = from; i <= to; i++){
-        page_directory[i] = (((uint32_t)(page_tables + 1024 * i))) + 0x03;
+        page_directory[i] = (((uint32_t)(page_tables + 1024 * i))) | 0x03;
         page_directory[i + PD_OFFSET(PT_OFFSET(KERNEL_BASE))] 
-            = (((uint32_t)(page_tables + 1024 * i))) + 0x03;
+            = (((uint32_t)(page_tables + 1024 * i))) | 0x03;
     }
-
-
-    // from = 0;
-    // to = PT_OFFSET(kernel_end) -  PT_OFFSET(kernel_start);
-    // for (size_t i = from; i <= to; i++)
-    //     page_tables[i] = ((i) << 12) + 0x03;
-        
-
 }
 /*
     C0000 000        C0202 3E3

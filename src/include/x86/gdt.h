@@ -29,6 +29,6 @@ struct gdt_ptr_struct
 
 void init_gdt();
 void set_gdt_entry(size_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
-extern void gdt_flush(struct gdt_ptr_struct gdt_ptr);
+extern void gdt_flush(struct gdt_ptr_struct *gdt_ptr);
 
 #endif

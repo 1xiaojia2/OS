@@ -19,7 +19,7 @@ uint32_t read_pit_count(pit_port counter){
 
 void write_pit_count(pit_port cw, pit_port counter, uint32_t divisor){
     cli();
-    outb(control_word_reg,cw);
+    outb(control_word_reg, cw);
     outb(counter,(uint8_t)(divisor & 0xFF));
     outb(counter,(uint8_t)((divisor >> 8) & 0xFF));
     sti();

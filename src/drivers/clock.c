@@ -4,34 +4,44 @@
 #include<drivers/clock.h>
 #include <kernel/mm/kmalloc.h>
 #include <stdio.h>
-
+#include <kernel/process/thread.h>
 clock_t ticks;
 
 typedef struct alarm_llist task_list;
+
 
 static task_list task_list_head;
 static task_list *task_list_last;
 
 void clock_handler(struct isr_regs *regs){
-    ticks++;
-    task_list *task = task_list_head.next;
-    while (task != NULL)
-    {
-        task->residual--;
-        if(task->residual == 0){
-            void (*exec)() = task->exec_task;
-            exec();
-            switch (task->type)
-            {
-            case re_triggerable:
-                task->residual = task->time_slice;
-                break;
-            case one_shot:
-                delete_alarm_task(task);
-            } 
-        }
-        task = task->next;
-    }
+    // ticks++;
+    // task_list *task = task_list_head.next;
+    // while (task != NULL)
+    // {
+    //     task->residual--;
+    //     if(task->residual == 0){
+    //         void (*exec)() = task->exec_task;
+    //         exec();
+    //         switch (task->type)
+    //         {
+    //         case re_triggerable:
+    //             task->residual = task->time_slice;
+    //             break;
+    //         case one_shot:
+    //             delete_alarm_task(task);
+    //         } 
+    //     }
+    //     task = task->next;
+    // }
+    thread* cur_thread = running_thread();
+
+    cur_thread->total_ticks++;
+
+    if (cur_thread->ticks == 0) { 
+        schedule(); 
+    } else {
+        cur_thread->ticks--; 
+    } 
 }
 
 void init_clock(){

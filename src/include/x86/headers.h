@@ -4,12 +4,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define KCODE_SEG   0X08
+#define KDATA_SEG   0X10
+
 struct isr_regs
 {   
+    uint32_t ds;
+    uint32_t edi, esi;
+    uint32_t ebp, esp;
+    uint32_t ebx, edx, ecx, eax;
     uint32_t vector;
     uint32_t error_code;
     uint32_t eip;
-    uint16_t cs;
+    uint32_t cs;
     uint32_t eflags;
 };
 

@@ -25,3 +25,11 @@ static inline void cli(){
 static inline void sti(){
     asm("sti");
 }
+
+static inline uint32_t cpu_reflags(){
+    uint32_t val;
+    asm volatile("pushf\n"
+                 "popl %0\n"
+                 : "=r"(val)::);
+    return val;
+}

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <hardware/pic.h>
 #include <kernel/tty.h>
+#include <kernel/process/thread.h>
 
 char *interrupt_messages[32] = {
         "Divide Error",
@@ -33,18 +34,20 @@ uintptr_t interrupt_table[16] ={
     0,0,0,0,0,0,0,0
 };
 
-void isr_handler(struct isr_regs *regs){ 
-    printf("INT %d: %s. cs: 0x%x, eip: 0x%x, error_code: 0x%x\n", regs->vector, interrupt_messages[regs->vector],
-    regs->cs, regs->eip, regs->error_code); 
-    for(;;); 
-}
-
-void irq_handler(struct isr_regs *regs){ 
-    void (*handler)(struct isr_regs *) = interrupt_table[regs->vector - 32];
-    if(handler){
-        handler(regs);
+void intr_handler(struct isr_regs *regs){ 
+    // current_thread()->thread_context = *regs;
+    if(regs->vector < 32){
+        printf("INT %d: %s. cs: 0x%x, eip: 0x%x, error_code: 0x%x\n", regs->vector, interrupt_messages[regs->vector],
+        regs->cs, regs->eip, regs->error_code); 
+        for(;;); 
     }
-    pic_sendEOI(regs->vector - 32);
+    else{
+        pic_sendEOI(regs->vector - 32);
+        void (*handler)(struct isr_regs *) = interrupt_table[regs->vector - 32];
+        if(handler){
+            handler(regs);
+        }
+    }
 }
 
 void irq_install_handler(size_t vector, void (*handler)(struct isr_regs *regs)){

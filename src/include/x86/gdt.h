@@ -8,7 +8,7 @@
 #define GDT_ACCESS_CODE_DPL3    0xFA
 #define GDT_ACCESS_DATA_DPL3    0xF2
 #define GDT_FLAGS               0xC0
-#define GDT_SIZE    5
+#define GDT_SIZE    6
 
 struct gdt_entry
 {

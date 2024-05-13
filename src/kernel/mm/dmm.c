@@ -30,8 +30,14 @@ void *dmm_sbrk(heap_context *heap, size_t increment){
             Require a new page, base address of new 
             page is 'PTE_INDEX(current_brk)'.
         */
+        size_t diff = PTE_INDEX(current_brk) - PTE_INDEX(heap->brk);
         uint32_t flags = vm_get_page_attr(heap->start);
-        if(vm_alloc(current_brk, flags) == NULL) return NULL;
+        for (size_t i = 1; i <= diff; i++){
+            vm_alloc(pre_brk + i * PAGE_SIZE, flags);
+            // if(vm_alloc(pre_brk + i * PAGE_SIZE, flags) == NULL) return NULL;
+        }
+            
+        
     }
     heap->brk = current_brk;
     return pre_brk;

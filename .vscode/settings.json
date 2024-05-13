@@ -26,7 +26,12 @@
         "vmm.h": "c",
         "dmm.h": "c",
         "rtc.h": "c",
-        "clock.h": "c"
+        "clock.h": "c",
+        "time.h": "c",
+        "tss.h": "c",
+        "cpu.h": "c",
+        "thread.h": "c",
+        "dlist.h": "c"
     },
     "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc",
 }

@@ -2,7 +2,7 @@
 #define _TIME_H 1
 #include <x86/headers.h>
 
-typedef uint64_t clock_t;
+typedef uint32_t clock_t;
 
 typedef enum{
     one_shot,

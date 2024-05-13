@@ -3,11 +3,11 @@
 #include <kernel/mm/memory.h>
 #include <kernel/header.h>
 
+
 #define HEAD_SIZE   4
 
-extern unsigned _kernel_end;
 #define KHEAP_MAX_BRK   KERNEL_STACK_TOP
-#define KHEAP_START   (((((unsigned)&_kernel_end) + PAGE_SIZE - 1)/PAGE_SIZE) << 12)
+#define KHEAP_START   (KERNEL_END + THREAD_BLOCK_SIZE + KERNEL_BASE)
 
 #define GET_BLOCK_STATUS(header)             ((header) & 1)
 #define USED_BLOCK(header)                   ((header) | 1)

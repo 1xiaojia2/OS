@@ -1,106 +1,165 @@
-.macro  isr_stub vector, no_err=1
-    .global isr_stub_\vector
-    isr_stub_\vector:
+.macro  intr_stub vector, no_err=1
+    .global intr_stub_\vector
+    intr_stub_\vector:
         cli
         .if \no_err
             pushl $0x0
         .endif
         pushl $\vector
-        jmp isr_wrapper
+        jmp intr_wrapper
 .endm
 
-.macro  irq_stub vector
-    .global irq_stub_\vector
-    irq_stub_\vector:
-        cli
-        pushl $0x0
-        pushl $(\vector+32)
-        jmp irq_wrapper
-.endm
 
-.extern isr_handler, irq_handler
+.extern intr_handler
 
 .section .text
 # General steps for interrupts and exceptions
-isr_wrapper:
-    movl %esp, %eax
-    andl $0xFFFFFFF0, %esp
-    subl $0x10, %esp
-    movl %eax, (%esp)
+intr_wrapper:
+    # eax, ecx, edx, ebx
+    # esp, ebp
+    # esi, edi
+    pushal
 
-    call isr_handler
+    # ds, es, fs, gs, ss
+    movw %ds, %ax
+    andl $0xFFFF, %eax
+    pushl %eax
 
+    movl $0x10, %eax  # DPL = 0, data
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+
+    pushl %esp
+
+    call intr_handler
+
+.global soft_iret
+soft_iret:
+    pop %esp
+    
     pop %eax
-    movl %eax, %esp
+    movw %ax, %gs
+    movw %ax, %fs
+    movw %ax, %es
+    movw %ax, %ds
+
+    pop %edi
+    pop %esi
+    pop %ebp
+
+    pop %eax #esp
+    pop %ebx
+    pop %edx
+    pop %ecx
+    pushl %eax
+    movl 4(%esp), %eax
+    pop %esp
+
     addl $0x08, %esp
     
     sti
     iret
-irq_wrapper:
-    movl %esp, %eax
-    andl $0xFFFFFFF0, %esp
-    subl $0x10, %esp
-    movl %eax, (%esp)
 
-    call irq_handler
+    intr_stub 0
+    intr_stub 1
+    intr_stub 2
+    intr_stub 3
+    intr_stub 4
+    intr_stub 5
+    intr_stub 6
+    intr_stub 7
+    intr_stub 8, no_err=0
+    intr_stub 9
+    intr_stub 10, no_err=0
+    intr_stub 11, no_err=0
+    intr_stub 12, no_err=0
+    intr_stub 13, no_err=0
+    intr_stub 14, no_err=0
+    intr_stub 15
+    intr_stub 16
+    intr_stub 17, no_err=0
+    intr_stub 18
+    intr_stub 19
+    intr_stub 20
+    intr_stub 21
+    intr_stub 22
+    intr_stub 23
+    intr_stub 24
+    intr_stub 25
+    intr_stub 26
+    intr_stub 27
+    intr_stub 28
+    intr_stub 29
+    intr_stub 30, no_err=0
+    intr_stub 31, no_err=0
 
-    pop %eax
-    movl %eax, %esp
-    addl $0x08, %esp
-    
-    sti
-    iret
+    intr_stub 32
+    intr_stub 33
+    intr_stub 34
+    intr_stub 35
+    intr_stub 36
+    intr_stub 37
+    intr_stub 38
+    intr_stub 39
+    intr_stub 40
+    intr_stub 41
+    intr_stub 42
+    intr_stub 43
+    intr_stub 44
+    intr_stub 45
+    intr_stub 46
+    intr_stub 47
 
-    isr_stub 0
-    isr_stub 1
-    isr_stub 2
-    isr_stub 3
-    isr_stub 4
-    isr_stub 5
-    isr_stub 6
-    isr_stub 7
-    isr_stub 8, 0
-    isr_stub 9
-    isr_stub 10, 0
-    isr_stub 11, 0
-    isr_stub 12, 0
-    isr_stub 13, 0
-    isr_stub 14, 0
-    isr_stub 15
-    isr_stub 16
-    isr_stub 17, 0
-    isr_stub 18
-    isr_stub 19
-    isr_stub 20
-    isr_stub 21
-    isr_stub 22
-    isr_stub 23
-    isr_stub 24
-    isr_stub 25
-    isr_stub 26
-    isr_stub 27
-    isr_stub 28
-    isr_stub 29
-    isr_stub 30, 0
-    isr_stub 31
-
-    irq_stub 0
-    irq_stub 1
-    irq_stub 2
-    irq_stub 3
-    irq_stub 4
-    irq_stub 5
-    irq_stub 6
-    irq_stub 7
-    irq_stub 8
-    irq_stub 9
-    irq_stub 10
-    irq_stub 11
-    irq_stub 12
-    irq_stub 13
-    irq_stub 14
-    irq_stub 15
-
-    
-
-
+.section .data
+.global intr_table
+intr_table:
+    .long intr_stub_0
+    .long intr_stub_1
+    .long intr_stub_2
+    .long intr_stub_3
+    .long intr_stub_4
+    .long intr_stub_5
+    .long intr_stub_6
+    .long intr_stub_7
+    .long intr_stub_8
+    .long intr_stub_9
+    .long intr_stub_10
+    .long intr_stub_11
+    .long intr_stub_12
+    .long intr_stub_13
+    .long intr_stub_14
+    .long intr_stub_15
+    .long intr_stub_16
+    .long intr_stub_17
+    .long intr_stub_18
+    .long intr_stub_19
+    .long intr_stub_20
+    .long intr_stub_21
+    .long intr_stub_22
+    .long intr_stub_23
+    .long intr_stub_24
+    .long intr_stub_25
+    .long intr_stub_26
+    .long intr_stub_27
+    .long intr_stub_28
+    .long intr_stub_29
+    .long intr_stub_30
+    .long intr_stub_31
+    .long intr_stub_32
+    .long intr_stub_33
+    .long intr_stub_34
+    .long intr_stub_35
+    .long intr_stub_36
+    .long intr_stub_37
+    .long intr_stub_38
+    .long intr_stub_39
+    .long intr_stub_40
+    .long intr_stub_41
+    .long intr_stub_42
+    .long intr_stub_43
+    .long intr_stub_44
+    .long intr_stub_45
+    .long intr_stub_46
+    .long intr_stub_47

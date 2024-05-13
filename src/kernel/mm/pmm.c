@@ -7,7 +7,6 @@
 #define DIV_ROUND_UP(address)   (((address)+PAGE_SIZE-1)/PAGE_SIZE)
 
 static uint32_t bitmap[1024 * 1024 / BITMAP_GRAN];
-extern unsigned _kernel_end;
 static uint32_t pre_alloc_pp;
 static uint32_t total_page;
 static uint32_t free_page;
@@ -27,10 +26,9 @@ static inline void oom(){
 }
 
 void pmm_init(uint32_t mem_lower, uint32_t mem_upper){
-    unsigned kernel_end = (unsigned)(&_kernel_end) - KERNEL_BASE;
     total_page = DIV_ROUND_UP(mem_upper);
     free_page = 0;
-    bitmap_set(DIV_ROUND_UP(kernel_end), (mem_upper - kernel_end) >> 12, FREE);
+    bitmap_set(DIV_ROUND_UP(KERNEL_END), (mem_upper - KERNEL_END) >> 12, FREE);
 }
 
 /**

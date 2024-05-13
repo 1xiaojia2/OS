@@ -5,7 +5,14 @@
 #define PAGE_SIZE   0x1000
 #define CLOCK_PER_SEC   100
 #define TIME_SLICE_MS  10
-
 #define TIMEZONE    (8)
+
+extern unsigned _kernel_end;
+extern unsigned _kernel_start;
+extern unsigned boot_stack_bottom;
+extern unsigned boot_stack_top;
+
+#define KERNEL_END  ((unsigned)&_kernel_end - KERNEL_BASE)
+#define _kernel_start ((unsigned)&_kernel_start)
 
 #endif

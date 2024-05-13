@@ -7,8 +7,8 @@ def generateText(s, count):
 
 
 def main():
-    s = "set_idt_entry(*, irq_stub_@, 0x08, IDT_INTR_ACCESS_DPL0);"
-    count = 16
+    s = "set_idt_entry(@, intr_stub_@, 0x08, IDT_INTR_ACCESS_DPL0);"
+    count = 48
     generateText(s, count)
 
 if __name__ == "__main__":

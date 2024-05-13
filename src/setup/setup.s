@@ -1,4 +1,4 @@
-.global gdt_flush, idt_flush
+.global gdt_flush, idt_flush, tss_flush
 .global page_directory, kernel_page_tables
 
 .section .text
@@ -20,6 +20,12 @@ idt_flush:
     lidt (%eax)
     sti
     ret
+
+tss_flush:
+    movw $0x2B, %ax
+    ltr %ax
+    ret
+
 
 .section .bss
 .align 4096

@@ -59,6 +59,9 @@ void vm_change_map(uint32_t new_pa, uint32_t va);
 void *vm_v2p(uint32_t va);
 void *vm_alloc(uint32_t va_base, uint32_t flags);
 void vm_free(void *va);
+void *vm_get_kernel_pd();
+
+void *vm_alloc_thread_block();
 uint32_t vm_get_page_attr(uint32_t va);
 /**
  * @brief 初始化页目录，清空用户空间映射，设置循环映射。

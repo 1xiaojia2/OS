@@ -11,6 +11,4 @@
 
 #define GRUB    5
 
-#define MAGICBP     asm("xchgw %bx, %bx")
-
 void printk(int moudle_index, int level_index, const char *format, ...);

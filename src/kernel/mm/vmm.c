@@ -29,19 +29,14 @@ void vm_pd_init(pde_t *pd){
     pd[1023] = ((pde_t)vm_v2p(pd)) | 3;
 }
 
-// void *vm_find_free_kp(){
-//     pde_t *pd = PD_VA;
-//     for (size_t pd_index = PDE_INDEX(KHEAP_START); pd_index < PDE_INDEX(KHEAP_MAX_BRK); pd_index++){
-//         if(!IS_PRES(pd[pd_index]))
-//             return (void *)(pd_index << 22);
-        
-//         pte_t *pt = PT_VA(pd_index);
-//         for (size_t pt_index = 0; pt_index < 1024; pt_index++)
-//             if(!IS_PRES(pt[pt_index]))
-//                 return (void *)(pd_index << 22 | pt_index << 12);
-//     }
-//     return NULL;
-// }
+
+void *vm_alloc_thread_block(){
+    size_t count = THREAD_BLOCK_SIZE >> 12;
+    for (size_t i = 0; i < count; i++)
+        if(vm_v2p(THREAD_BLOCK_START + (i << 12)) == NULL)
+            return vm_alloc(THREAD_BLOCK_START + (i << 12), 3);
+    return NULL;
+}
 
 void *vm_alloc(uint32_t va_base, uint32_t flags){
     void *pa_base = pm_alloc();
@@ -81,7 +76,11 @@ int vm_mmap(uint32_t pa_base, uint32_t va_base, uint32_t flags){
         memset(pt, 0, PAGE_SIZE);
     }
 
-    if(IS_PRES(pt[pt_index])) return -1;
+    if(IS_PRES(pt[pt_index]) && ((pt[pt_index] >> 12) != pa_base >> 12)) {
+        printk(MEMORY, WARN , "va[0x%p] has been mapped to pa[0x%p].", va_base, pt[pt_index]);
+        printk(MEMORY, WARN, "You wanna map it to pa[0x%p]", pa_base);
+        return -1;
+    }
     pt[pt_index] = (pa_base & ~0xFFF) | (flags & 0xFFF) | 0x01;
     return 0;
 }
@@ -112,10 +111,13 @@ void *vm_v2p(uint32_t va){
     pte_t *pt = PT_VA(pd_index);
 
     if(!IS_PRES(pd[pd_index]) || !IS_PRES(pt[pt_index])){
-        printk(MEMORY, WARN, "NO mapping for [0x%x].", va);
+        // printk(MEMORY, WARN, "NO mapping for [0x%x].", va);
         return NULL;
     }
 
     return (void *)(PT_ADDR(pt[pt_index]) + (va & 0xFFF));
 }
 
+void *vm_get_kernel_pd(){
+    return &page_directory;
+}

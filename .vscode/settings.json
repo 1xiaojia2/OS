@@ -31,7 +31,9 @@
         "tss.h": "c",
         "cpu.h": "c",
         "thread.h": "c",
-        "dlist.h": "c"
+        "dlist.h": "c",
+        "sync.h": "c",
+        "kdebug.h": "c"
     },
     "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc",
 }

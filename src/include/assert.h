@@ -1,2 +1,0 @@
-
-void assert(int expression);

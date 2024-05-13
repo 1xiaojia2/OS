@@ -9,7 +9,7 @@
 
 struct dlist_elem { 
     struct dlist_elem* prev;
-    struct dlist_elem* next;
+    struct dlist_elem* next; 
 }; 
 
 struct dlist { 

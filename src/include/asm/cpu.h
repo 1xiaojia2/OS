@@ -19,13 +19,6 @@ static inline void wrmsr(uint32_t msr, uint32_t lo, uint32_t hi)
    asm volatile("wrmsr" : : "a"(lo), "d"(hi), "c"(msr));
 }
 
-static inline void cli(){
-    asm ("cli");
-}
-static inline void sti(){
-    asm("sti");
-}
-
 static inline uint32_t cpu_reflags(){
     uint32_t val;
     asm volatile("pushf\n"
@@ -33,3 +26,24 @@ static inline uint32_t cpu_reflags(){
                  : "=r"(val)::);
     return val;
 }
+
+typedef enum{
+    disable,
+    enable,
+} intr_status;
+
+static inline intr_status cpu_get_intr_flag(){
+    return ((cpu_reflags() >> 9) & 1);
+}
+
+static inline intr_status cli(){
+    intr_status old = cpu_get_intr_flag();
+    asm("cli");
+    return old;
+}
+
+static inline void sti(){
+    asm("sti");
+}
+
+void cpu_set_intr_flag(intr_status);

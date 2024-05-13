@@ -3,6 +3,7 @@
 #include <hardware/pic.h>
 #include <kernel/tty.h>
 #include <kernel/process/thread.h>
+#include <asm/cpu.h>
 
 char *interrupt_messages[32] = {
         "Divide Error",
@@ -55,4 +56,9 @@ void irq_install_handler(size_t vector, void (*handler)(struct isr_regs *regs)){
 }
 void irq_uninstall_handler(size_t vector){
     interrupt_table[vector] = 0;
+}
+
+void cpu_set_intr_flag(intr_status status){
+    if(status == enable) sti();
+    else cli();
 }

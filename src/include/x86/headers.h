@@ -18,6 +18,8 @@ struct isr_regs
     uint32_t eip;
     uint32_t cs;
     uint32_t eflags;
+    uint32_t esp0;
+    uint32_t ss0;
 };
 
 

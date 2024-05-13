@@ -42,4 +42,7 @@ thread *thread_start(char *tname, uint16_t priority, void *exec, void *args);
 void thread_init();
 void schedule();
 thread* running_thread();
+
+void thread_block(task_state state);
+void thread_unblock(thread* pthread);
 #endif

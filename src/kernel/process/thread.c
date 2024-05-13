@@ -3,7 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <assert.h>
+#include <kdebug.h>
 #include <kernel/mm/vmm.h>
 #include <asm/cpu.h>
 #include <stdio.h>
@@ -12,7 +12,6 @@ thread* main_thread;
 struct dlist thread_ready_list;
 struct dlist thread_all_list;
 static struct dlist_elem* thread_tag;
-
 
 extern void switch_to(thread* cur, thread* next);
 
@@ -38,6 +37,7 @@ void create_thread(thread *tcb, void *exec, void *args){
     ctx->eip = kthread;
     ctx->exec_func = exec;
     ctx->exec_arg = args;
+    ctx->ebp = kthread;
     ctx->ebp = ctx->ebx = ctx->edi = ctx->esi = 0;
 }
 void init_thread(thread *tcb, char *tname, uint16_t priority, uint32_t stack_size){
@@ -57,10 +57,10 @@ thread *thread_start(char *tname, uint16_t priority, void *exec, void *args){
     init_thread(tcb, tname, priority, PAGE_SIZE);
     create_thread(tcb, exec, args);
 
-    assert(!dlist_elem_find(&thread_ready_list, &tcb->state_list_tag));
+    ASSERT(!dlist_elem_find(&thread_ready_list, &tcb->state_list_tag));
     dlist_append(&thread_ready_list, &tcb->state_list_tag);
 
-    assert(!dlist_elem_find(&thread_all_list, &tcb->all_list_tag)); 
+    ASSERT(!dlist_elem_find(&thread_all_list, &tcb->all_list_tag)); 
     dlist_append(&thread_all_list, &tcb->all_list_tag);
 
     return tcb;
@@ -70,14 +70,14 @@ static void make_main_thread(void) {
     main_thread = running_thread(); 
     init_thread(main_thread, "main", 31, PAGE_SIZE); 
     main_thread->state = RUNNING;
-    assert(!dlist_elem_find(&thread_all_list, &main_thread->all_list_tag)); 
+    ASSERT(!dlist_elem_find(&thread_all_list, &main_thread->all_list_tag)); 
     dlist_append(&thread_all_list, &main_thread->all_list_tag); 
 }
 
 void schedule(){
     thread* cur = running_thread();
     if (cur->state == RUNNING) { 
-        assert(!dlist_elem_find(&thread_ready_list, &cur->state_list_tag)); 
+        ASSERT(!dlist_elem_find(&thread_ready_list, &cur->state_list_tag)); 
         dlist_append(&thread_ready_list, &cur->state_list_tag); 
         cur->ticks = cur->priority; 
         cur->state = READY; 
@@ -95,4 +95,26 @@ void thread_init(){
     dlist_init(&thread_all_list);
     dlist_init(&thread_ready_list);
     make_main_thread();
+}
+
+void thread_block(task_state state){
+   ASSERT(((state == BLOCKED) || (state == READY)));
+   intr_status old_status = cli();
+   thread* cur_thread = running_thread();
+   cur_thread->state = state;
+   schedule();	
+   cpu_set_intr_flag(old_status);    
+}
+void thread_unblock(thread* pthread){
+    intr_status old_status = cli();
+    ASSERT(((pthread->state == BLOCKED) || (pthread->state == READY)));
+   if (pthread->state != READY) {
+        ASSERT(!dlist_elem_find(&thread_ready_list, &pthread->state_list_tag));
+        if (dlist_elem_find(&thread_ready_list, &pthread->state_list_tag)) {
+            //TODO: 
+        }
+        dlist_push(&thread_ready_list, &pthread->state_list_tag);
+        pthread->state = READY;
+   } 
+   cpu_set_intr_flag(old_status);
 }

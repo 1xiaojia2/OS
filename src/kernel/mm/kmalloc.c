@@ -1,7 +1,7 @@
 #include <kernel/mm/dmm.h>
 #include<kernel/mm/kmalloc.h>
 #include <stdbool.h>
-#include <assert.h>
+#include <kdebug.h>
 #include <string.h>
 #include <kernel/syslog.h>
 
@@ -55,13 +55,13 @@ void *kmalloc(size_t size){
 
 void kfree(void *ptr){
     uint32_t *header = ptr - HEAD_SIZE;
-    assert(*header & 1 == 1);
+    ASSERT(*header & 1 == 1);
     *header &= 0xFFFFFFFE;
     coalesce(header);
 }
 
 void set_free_block_header(uint32_t *header_ptr, size_t pre_status, size_t size){
-    assert(size%MALLOC_BLOCK_ALIGN == 0);
+    ASSERT(size%MALLOC_BLOCK_ALIGN == 0);
     // By default, status of block is freed.
     *header_ptr = size;
     *header_ptr |= pre_status << 1;
@@ -100,7 +100,7 @@ void *coalesce(uint32_t *header){
 
 bool block_avaliable(uint32_t header, size_t require_size){
     uint32_t avalible_size = header & 0xFFFFFFFC;
-    assert(require_size%MALLOC_BLOCK_ALIGN==0);
+    ASSERT(require_size%MALLOC_BLOCK_ALIGN==0);
     /*
         Why '(2*MALLOC_BLOCK_ALIGN)'? Isn`t it 'MALLOC_BLOCK_ALIGN'?
         We need to assure that after spliting, residual payload is

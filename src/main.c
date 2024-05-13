@@ -8,6 +8,7 @@
 #include <kernel/process/process.h>
 #include <kernel/process/thread.h>
 
+#include <kdebug.h>
 #include <drivers/time.h>
 #include <stdio.h>
 #include <kernel/syslog.h>
@@ -35,23 +36,23 @@ void kernel_init(uint32_t address){
 
     init_gdt();
     init_idt();
+    init_memory(address);
+    thread_init();
     init_keryboard();
     init_clock();
 
-    init_memory(address);
     // add_alarm_task(time_str, 1000, re_triggerable);
     
     // char *ptr = kmalloc(PAGE_SIZE * 3);
     // printf("ptr: %p\n", ptr);
     
-    thread_init();
-    thread_start("k_thread_b", 8, pt2, "argB ");
-    thread_start("k_thread_a", 31, pt1, "argA ");
-    sti();
-    while (1)
-    {
-        printf("MAIN\n");
-    }
+    thread_start("A", 8, pt1, "argA ");
+    thread_start("B", 8, pt2, "argB ");
+    // sti();
+    // while (1)
+    // {
+    //     printf("MAIN\n");
+    // }
     
     for(;;);
 }

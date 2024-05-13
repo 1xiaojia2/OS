@@ -2,10 +2,10 @@
 #include <kernel/mm/vmm.h>
 #include <kernel/mm/pmm.h>
 #include <kernel/header.h>
-#include <assert.h>
+#include <kdebug.h>
 
 void dmm_init(heap_context *heap, uint32_t page_flags){
-    assert(heap->start % MALLOC_BLOCK_ALIGN == 0);
+    ASSERT(heap->start % MALLOC_BLOCK_ALIGN == 0);
     vm_alloc(heap->start, page_flags);
     heap->brk = heap->start + PAGE_SIZE;
 }
@@ -17,7 +17,7 @@ int dmm_brk(heap_context *heap, void *addr){
 void *dmm_sbrk(heap_context *heap, size_t increment){
     
     //TODO: Ajust return value.
-    assert(increment%MALLOC_BLOCK_ALIGN==0);
+    ASSERT(increment%MALLOC_BLOCK_ALIGN==0);
 
     uint32_t pre_brk = heap->brk;
     uint32_t current_brk = heap->brk + increment;

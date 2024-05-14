@@ -1,6 +1,6 @@
 #include <kdebug.h>
 #include <stdio.h>
-
+#include <asm/cpu.h>
 
 void panic_spin(char* filename, int line, const char* func, const char* condition){
     printf("!!!!!!!!!ERROR!!!!!!!!!!!!\n");
@@ -8,5 +8,6 @@ void panic_spin(char* filename, int line, const char* func, const char* conditio
     printf("Line: %d\n", line);
     printf("Function: %s\n", func);
     printf("Condition: %s\n", condition);
-    while (1);
+    while (1)
+        cli();
 }

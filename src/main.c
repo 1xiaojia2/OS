@@ -43,16 +43,16 @@ void kernel_init(uint32_t address){
 
     // add_alarm_task(time_str, 1000, re_triggerable);
     
-    // char *ptr = kmalloc(PAGE_SIZE * 3);
-    // printf("ptr: %p\n", ptr);
-    
-    thread_start("A", 8, pt1, "argA ");
-    thread_start("B", 8, pt2, "argB ");
-    // sti();
-    // while (1)
-    // {
-    //     printf("MAIN\n");
-    // }
+    thread *t1 = thread_create("A", 31, pt1, "argA ");
+    thread *t2 = thread_create("B", 31, pt2, "argB ");
+    thread_push(t1);
+    thread_push(t2);
+    // thread_destory(t1);
+    // t1 = NULL;
+    while (1)
+    {
+        printf("MAIN\n");
+    }
     
     for(;;);
 }

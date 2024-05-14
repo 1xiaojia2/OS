@@ -40,7 +40,7 @@ void intr_handler(struct isr_regs *regs){
     if(regs->vector < 32){
         printf("INT %d: %s. cs: 0x%x, eip: 0x%x, error_code: 0x%x\n", regs->vector, interrupt_messages[regs->vector],
         regs->cs, regs->eip, regs->error_code); 
-        for(;;); 
+        for(;;);
     }
     else{
         pic_sendEOI(regs->vector - 32);

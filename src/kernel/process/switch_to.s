@@ -1,9 +1,5 @@
-.global soft_intr, switch_to
-
+.global switch_to
 .section .text
-soft_intr:
-    
-    iret
 
 switch_to:
     pushl %esi

@@ -79,7 +79,7 @@ high_half:
 
 
 .section .boot.bss, "aw", @nobits
-.align  4096
+.align  16
 boot_stack_bottom:
 .skip   BOOT_STACK_SIZE
 boot_stack_top:

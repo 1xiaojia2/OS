@@ -12,7 +12,7 @@ void panic_spin(char* filename, int line, const char* func, const char* conditio
    #define ASSERT(CONDITION) ((void)0)
 #else
    #define ASSERT(CONDITION)                                        \
-      if (CONDITION) {} else {                                      \
+      if ((CONDITION)) {} else {                                      \
 	    PANIC(#CONDITION);                                          \
       }
 #endif /*__NDEBUG */

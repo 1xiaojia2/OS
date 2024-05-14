@@ -29,6 +29,8 @@ void dlist_append(struct dlist* plist, struct dlist_elem* elem){
 void dlist_remove(struct dlist_elem* pelem){
     pelem->prev->next = pelem->next; 
     pelem->next->prev = pelem->prev;
+    pelem->next= NULL;
+    pelem->prev = NULL;
 }
 
 void dlist_push(struct dlist* plist, struct dlist_elem* elem){

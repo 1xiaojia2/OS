@@ -71,14 +71,6 @@ void kernel_init(uint32_t address){
     printf("rolling right!\n");
     printf("rolling left!\n");
 
-    char * ptr = kmalloc(4);
-    *ptr = 'a';
-    // char *ptr;
-    printf("ptr address: %p", ptr);
-    printf("ptr address: %c", *ptr);
-
-
-
 #ifdef THREAD_DEBUG
     thread *thread1_tcb = thread_create("A", 40, thread1, "argsA");
     thread *thread2_tcb = thread_create("B", 40, thread2, "argsB");

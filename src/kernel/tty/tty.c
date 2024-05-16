@@ -95,4 +95,47 @@ void tty_cls(){
     tty_set_color(color);
 }
 
+void tty_change_line_color(size_t line, uint8_t color){
+    int cur;
+    for (size_t i = line * VGA_WIDTH; i < line * VGA_WIDTH + VGA_WIDTH; i++)
+    {
+        cur = vga[i] & 0xFF;
+        cur |= color << 8;
+        vga[i] = cur;
+    }
+}
 
+void tty_roll_line(size_t line, bool right){
+    if(line > VGA_HEIGHT) return;
+    uint16_t elem;
+    if(right){
+        elem = vga[line*VGA_WIDTH+VGA_WIDTH - 1];
+        memmove(&vga[line*VGA_WIDTH+1], &vga[line*VGA_WIDTH], VGA_WIDTH);
+        vga[line*VGA_WIDTH] = elem;
+    }
+    else{
+        elem = vga[line*VGA_WIDTH];
+        
+        // memmove(&vga[line*VGA_WIDTH], &vga[line*VGA_WIDTH+1], VGA_WIDTH);
+        for (size_t i = line*VGA_WIDTH; i < line*VGA_WIDTH+VGA_WIDTH; i++)
+        {
+            vga[i] = vga[i+1]; 
+        }
+        vga[line*VGA_WIDTH+VGA_WIDTH - 1] = elem;
+        
+        
+    }
+    
+}
+
+size_t tty_get_current_line(){
+    return cursor / VGA_WIDTH;
+}
+size_t tty_get_current_column(){
+    return cursor % VGA_WIDTH;
+}
+
+void tty_set_current_pos(size_t x, size_t y){
+    cursor = y * VGA_WIDTH + x;
+    vga_update_cursor(current_color);
+}

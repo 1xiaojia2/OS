@@ -1,6 +1,7 @@
 #ifndef _DLIST_H
 #define _DLIST_H
 #include <stdbool.h>
+#include <stddef.h>
 
 #define offset(struct_type,member) (int)(&((struct_type*)0)->member) 
 
@@ -52,5 +53,21 @@ unsigned int dlist_len(struct dlist* plist);
 struct dlist_elem* list_traversal(struct dlist* plist, function func, int arg); 
 
 bool dlist_elem_find(struct dlist* plist, struct dlist_elem* obj_elem); 
+
+
+typedef struct llist_node{
+    struct llist_node *next;
+} llist_node;
+
+typedef struct llist
+{
+    // struct lock lock;
+    llist_node header;
+} llist;
+
+void llist_init(llist *);
+void llist_remove(llist * plist, llist_node *node);
+void llist_push(llist * plist, llist_node *node);
+llist_node *llist_pop(llist * plist, llist_node *node);
 
 #endif

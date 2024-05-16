@@ -10,11 +10,13 @@ void dlist_init(struct dlist* list){
 }
 
 void dlist_insert_before(struct dlist_elem* before, struct dlist_elem* elem){
+    intr_status old_status = cli();
 
     before->prev->next = elem; 
     elem->prev = before->prev; 
     elem->next = before; 
     before->prev = elem;
+    cpu_set_intr_flag(old_status);
 
 }
 
@@ -27,10 +29,12 @@ void dlist_append(struct dlist* plist, struct dlist_elem* elem){
 }
 
 void dlist_remove(struct dlist_elem* pelem){
+    intr_status old_status = cli();
     pelem->prev->next = pelem->next; 
     pelem->next->prev = pelem->prev;
     pelem->next= NULL;
     pelem->prev = NULL;
+    cpu_set_intr_flag(old_status);
 }
 
 void dlist_push(struct dlist* plist, struct dlist_elem* elem){

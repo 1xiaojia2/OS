@@ -2,6 +2,8 @@
 #include<x86/idt.h>
 #include <string.h>
 #include <x86/tss.h>
+#include <kernel/header.h>
+#include <x86/headers.h>
 
 static struct gdt_entry gdt[GDT_SIZE];
 static struct idt_entry idt[IDT_SIZE];
@@ -21,7 +23,7 @@ void init_gdt(){
     set_gdt_entry(2, 0, 0x000FFFFF, GDT_ACCESS_DATA_DPL0, GDT_FLAGS);
     set_gdt_entry(3, 0, 0x000FFFFF, GDT_ACCESS_CODE_DPL3, GDT_FLAGS);
     set_gdt_entry(4, 0, 0x000FFFFF, GDT_ACCESS_DATA_DPL3, GDT_FLAGS);
-    init_tss(5, 0x10, 0);
+    init_tss(5, KDATA_SEG, KERNEL_STACK_BOTTOM);
 
     gdt_flush(&gdt_ptr);
     tss_flush();
@@ -80,6 +82,8 @@ void init_idt(){
     set_idt_entry(46, intr_stub_46, 0x08, IDT_INTR_ACCESS_DPL0);
     set_idt_entry(47, intr_stub_47, 0x08, IDT_INTR_ACCESS_DPL0);
 
+    set_idt_entry(128, intr_stub_128, 0x08, IDT_INTR_ACCESS_DPL0);
+
     pic_remap();
     idt_flush(&idt_ptr);
 }
@@ -94,8 +98,6 @@ void init_tss(uint32_t num, uint16_t ss0, uint32_t esp0){
     tss_entry.ss0 = ss0;
     tss_entry.esp0 = esp0;
 
-    tss_entry.cs = 0x08 | 0x3;
-    tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = 0x10 | 0x3;
 }
 
 
@@ -121,4 +123,8 @@ void set_idt_entry(uint8_t vector, uintptr_t isr, uint16_t segment_selector, uin
     idt[vector].segment_selector = segment_selector;
     idt[vector].zero = 0;
     idt[vector].access = access;
+}
+
+void tss_update_esp(uint32_t esp0){
+    tss_entry.esp0 = esp0;
 }

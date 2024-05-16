@@ -20,9 +20,18 @@ intr_wrapper:
     # esi, edi
     pushal
 
-    # ds, es, fs, gs, ss
+    # ds, es, fs, gs
+    xorl %eax, %eax
     movw %ds, %ax
-    andl $0xFFFF, %eax
+    pushl %eax
+    movw %es, %ax
+    pushl %eax
+    movw %fs, %ax
+    pushl %eax
+    movw %gs, %ax
+    pushl %eax
+
+    movl %cr2, %eax
     pushl %eax
 
     movl $0x10, %eax  # DPL = 0, data
@@ -38,24 +47,19 @@ intr_wrapper:
 .global soft_iret
 soft_iret:
     pop %esp
+
+    pop %eax
     
     pop %eax
     movw %ax, %gs
+    pop %eax
     movw %ax, %fs
+    pop %eax
     movw %ax, %es
+    pop %eax
     movw %ax, %ds
 
-    pop %edi
-    pop %esi
-    pop %ebp
-
-    pop %eax #esp
-    pop %ebx
-    pop %edx
-    pop %ecx
-    pushl %eax
-    movl 4(%esp), %eax
-    pop %esp
+    popal
 
     addl $0x08, %esp
     
@@ -111,6 +115,8 @@ soft_iret:
     intr_stub 45
     intr_stub 46
     intr_stub 47
+
+    intr_stub 128
 
 .section .data
 .global intr_table

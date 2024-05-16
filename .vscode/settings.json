@@ -33,7 +33,12 @@
         "thread.h": "c",
         "dlist.h": "c",
         "sync.h": "c",
-        "kdebug.h": "c"
+        "kdebug.h": "c",
+        "keryboard.h": "c",
+        "tire.h": "c",
+        "shell.h": "c",
+        "syscall.h": "c",
+        "kmalloc.h": "c"
     },
     "C_Cpp.default.compilerPath": "/home/jia/cross_toolchain/cross/bin/i686-elf-gcc",
 }

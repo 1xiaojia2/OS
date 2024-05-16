@@ -22,6 +22,9 @@ void init_memory(unsigned address){
     pmm_init(mem_lower, mem_upper);
     vmm_init();
     kalloc_init();
+    
+    // kernel stack
+    vm_alloc(KERNEL_STACK_BOTTOM - KERNEL_STACK_SIZE, (PG_US_S | PG_RW_W | PG_P_1));
 }
 
 void parse_mbi(unsigned address){

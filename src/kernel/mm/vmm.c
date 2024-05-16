@@ -6,27 +6,17 @@
 #include <kernel/syslog.h>
 #include <string.h>
 #include <stddef.h>
-
-extern pde_t page_directory[1024];
-extern pte_t kernel_page_tables[256 * 1024];
+#include <kdebug.h>
+#include <asm/cpu.h>
 
 static uint32_t pre_alloc_vp;
 
 void *vm_find_free_kp();
 
 void vmm_init(){
-    page_directory[1023] = get_current_pd_addr() | 3;
-    vm_pd_init(&page_directory); 
-}
-
-void vm_pd_init(pde_t *pd){
-    /* Clear user space. */
-    memset(pd, 0, PDE_INDEX(KERNEL_BASE));
-
-    //TODO: Copy kernel space mapping?
-
-    /* Recursive mapping. */
-    pd[1023] = ((pde_t)vm_v2p(pd)) | 3;
+    page_directory[1023] = get_cr3() | PG_US_S | PG_RW_W | PG_P_1;
+    memset(&page_directory, 0, 1024 * 3);
+    load_cr3(get_cr3());
 }
 
 
@@ -120,4 +110,11 @@ void *vm_v2p(uint32_t va){
 
 void *vm_get_kernel_pd(){
     return &page_directory;
+}
+
+void vm_init_page_dir(void *page_dir){
+    pde_t *pd = (pde_t *)page_dir;
+    memset(pd, 0, PDE_INDEX(KERNEL_BASE));
+    memcpy(&pd[PDE_INDEX(KERNEL_BASE)], &page_directory[PDE_INDEX(KERNEL_BASE)], 256*4);
+    pd[1023] = ((pde_t)vm_v2p(pd)) | PG_US_U | PG_RW_W | PG_P_1;
 }

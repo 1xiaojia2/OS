@@ -4,7 +4,7 @@
 #include<drivers/clock.h>
 #include <kernel/mm/kmalloc.h>
 #include <stdio.h>
-#include <kernel/process/thread.h>
+#include <kernel/process/header.h>
 clock_t ticks;
 
 typedef struct alarm_llist task_list;
@@ -14,33 +14,32 @@ static task_list task_list_head;
 static task_list *task_list_last;
 
 void clock_handler(struct isr_regs *regs){
-    // ticks++;
-    // task_list *task = task_list_head.next;
-    // while (task != NULL)
-    // {
-    //     task->residual--;
-    //     if(task->residual == 0){
-    //         void (*exec)() = task->exec_task;
-    //         exec();
-    //         switch (task->type)
-    //         {
-    //         case re_triggerable:
-    //             task->residual = task->time_slice;
-    //             break;
-    //         case one_shot:
-    //             delete_alarm_task(task);
-    //         } 
-    //     }
-    //     task = task->next;
-    // }
-    thread* cur_thread = running_thread();
+    ticks++;
+    task_list *task = task_list_head.next;
+    while (task != NULL)
+    {
+        task->residual--;
+        if(task->residual == 0){
+            void (*exec)(void *) = task->exec_task;
+            exec(task->exec_args);
+            switch (task->type)
+            {
+            case re_triggerable:
+                task->residual = task->time_slice;
+                break;
+            case one_shot:
+                delete_alarm_task(task);
+            } 
+        }
+        task = task->next;
+    }
 
-    cur_thread->total_ticks++;
+    __current->total_ticks++;
 
-    if (cur_thread->ticks == 0) { 
+    if (__current->ticks == 0) { 
         schedule(); 
     } else {
-        cur_thread->ticks--; 
+        __current->ticks--; 
     } 
 }
 
@@ -56,10 +55,11 @@ void init_clock(){
     write_pit_count(CONTROL_WORD_REG(SC_0, 3, 2, 0), counter0, divisor);
 }
 
-void add_alarm_task(uintptr_t exec, size_t ms, alarm_type type){
+void add_alarm_task(uintptr_t exec, uintptr_t exec_args, size_t ms, alarm_type type){
     task_list *new_task = (task_list *)kmalloc(sizeof(task_list));
 
     new_task->exec_task = exec;
+    new_task->exec_args = exec_args;
     new_task->time_slice = ms/TIME_SLICE_MS;
     new_task->residual = new_task->time_slice;
     new_task->type = type;

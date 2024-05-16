@@ -1,5 +1,10 @@
 #include <stdint.h>
 
+#define EFLAGS_MBS	(1 << 1)
+#define EFLAGS_IF_1	(1 << 9)
+#define EFLAGS_IF_0	0
+#define EFLAGS_IOPL_3	(3 << 12)
+#define EFLAGS_IOPL_0	(0 << 12)
 
 static inline void cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx){
     asm volatile(
@@ -47,3 +52,24 @@ static inline void sti(){
 }
 
 void cpu_set_intr_flag(intr_status);
+
+
+static inline uint32_t get_cr3(){
+    uint32_t pd_addr;
+    asm("movl %%cr3, %0\n\t"
+        :"=r" (pd_addr)
+        :
+        : "memory");
+    pd_addr &= 0xFFFFF000;
+    return pd_addr;
+}
+
+static inline void load_cr3(uint32_t new_pd_addr){
+    asm("movl %%cr3, %%eax\n\t"
+        "orl $0xFFF, %%eax\n\t"
+        "orl %0, %%eax\n\t"
+        "movl %%eax, %%cr3\n\t"
+        :
+        : "m"(new_pd_addr)
+        : "eax");
+}

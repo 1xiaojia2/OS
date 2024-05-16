@@ -16,6 +16,7 @@ struct lock {
    uint32_t holder_repeat_nr;
 };
 
+
 void sema_init(struct semaphore* psema, uint8_t value); 
 void sema_down(struct semaphore* psema);
 void sema_up(struct semaphore* psema);

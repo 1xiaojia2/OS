@@ -1,12 +1,89 @@
-// #include <kernel/process/process.h>
-// #include <x86/headers.h>
-// #include <drivers/time.h>
-// #include <kernel/mm/vmm.h>
-// #include <kernel/mm/kmalloc.h>
-// #include <stddef.h>
-// #include <stdio.h>
-// #include <hardware/pic.h>
-// #include <kdebug.h>
+#include <kernel/process/process.h>
+#include <kernel/mm/kmalloc.h>
+#include <x86/headers.h>
+#include <asm/cpu.h>
+#include <kernel/mm/vmm.h>
+#include <kdebug.h>
+
+void init_proc_stack(proc *process, void *start_process, void *filename);
+
+void k_proc(void *exec_func, void *exec_args){
+    sti();
+    void (*exec)(void *) = exec_func;
+    exec(exec_args);
+}
+
+void start_process(void* filename_) {
+   void* function = filename_;
+   proc* cur = current_task();
+   cur->stack += sizeof(proc_ctx);
+   struct isr_regs* intr_context = (struct isr_regs*)cur->stack;	 
+   intr_context->edi = intr_context->esi = intr_context->ebp = intr_context->esp = 0;
+   intr_context->ebx = intr_context->edx = intr_context->ecx = intr_context->eax = 0;
+   intr_context->gs = 0;
+   intr_context->ds = intr_context->es = intr_context->fs = UDATA_SEG;
+   intr_context->eip = function;
+   intr_context->cs = KCODE_SEG;
+   intr_context->eflags = (EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1);
+   intr_context->esp0 = vm_alloc(USER_STACK_BOTTOM - PAGE_SIZE, (PG_US_U | PG_RW_W | PG_P_1));
+   intr_context->ss0 = UDATA_SEG; 
+   asm volatile ("pushl %0\n\t "
+                  "jmp soft_iret\n\t" 
+                  : 
+                  : "g" (intr_context) 
+                  : "memory");
+}
+
+void init_proc_stack(proc *process, void *start_process, void *filename){
+   process->stack -= sizeof(struct isr_regs);
+   process->stack -= sizeof(thread_ctx);
+   proc_ctx *ctx = (proc_ctx *)process->stack;
+   ctx->eip = k_proc;
+   ctx->exec_func = start_process;
+   ctx->exec_args = filename;
+   ctx->ebp = k_proc;
+   ctx->ebp = ctx->ebx = ctx->edi = ctx->esi = 0;
+}
+
+proc* proc_create(void* filename, char* name){
+   
+   proc* process = kmalloc(sizeof(proc));
+
+   uint32_t stack = (uint32_t)vm_alloc_thread_block();
+   // task_init(process, name, DEFAULT_PRIO, USER_STACK_BOTTOM, USER_STACK_SIZE); 
+   task_init(process, name, DEFAULT_PRIO, stack + PAGE_SIZE, PAGE_SIZE); 
+
+   process->pgdir = vm_alloc_thread_block();
+   vm_init_page_dir(process->pgdir);
+
+   // Apply a user space page as the stack of user process.
+   // Base of the user space page is fixed('USER_STACK_BOTTOM - PAGE_SIZE').
+   // So initial size of stack is 0x1000. 
+
+   // Maybe cpoy on write.
+
+
+//    create_user_vaddr_bitmap(process);
+   init_proc_stack(process, start_process, filename);
+
+   vm_unmap(USER_STACK_BOTTOM - USER_STACK_SIZE);
+
+   return process;
+}
+
+void proc_push(proc *p){
+    p->state = READY;
+    task_push(p);
+}
+
+
+
+
+
+
+
+
+
 
 // pcb *proc_table[MAX_PROC];
 

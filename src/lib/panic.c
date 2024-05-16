@@ -1,13 +1,13 @@
 #include <kdebug.h>
-#include <stdio.h>
+#include <kernel/tty.h>
 #include <asm/cpu.h>
 
 void panic_spin(char* filename, int line, const char* func, const char* condition){
-    printf("!!!!!!!!!ERROR!!!!!!!!!!!!\n");
+    tty_write("!!!!!!!!!ERROR!!!!!!!!!!!!\n");
     printf("Filename: %s\n", filename);
     printf("Line: %d\n", line);
-    printf("Function: %s\n", func);
-    printf("Condition: %s\n", condition);
-    while (1)
-        cli();
+    printf("func: %s\n", func);
+    printf("condition: %s\n", condition);
+    cli();
+    for(;;);
 }

@@ -12,6 +12,7 @@ typedef enum{
 struct alarm_llist
 {
     uintptr_t exec_task;
+    uintptr_t exec_args;
     clock_t time_slice;
     clock_t residual;
     alarm_type type;
@@ -22,7 +23,7 @@ struct alarm_llist
 void init_clock();
 void clock_handler(struct isr_regs *regs);
 
-void add_alarm_task(uintptr_t exec, size_t ms, alarm_type type);
+void add_alarm_task(uintptr_t exec, uintptr_t exec_args, size_t ms, alarm_type type);
 void delete_alarm_task(uintptr_t exec);
 void add_task_slice(uintptr_t exec, clock_t slice);
 

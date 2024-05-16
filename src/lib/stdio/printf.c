@@ -4,6 +4,7 @@
 #include <utils.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <drivers/console.h>
 #include <kernel/tty.h>
 
 int *printf_number(int *argp, int length, bool sign, int radix);
@@ -11,6 +12,7 @@ void putc(char c);
 void puts(const char* s);
 
 void putc(char c){
+    // console_putchar(c);
     tty_putchar(c);
 }
 

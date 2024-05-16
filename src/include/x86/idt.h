@@ -75,4 +75,6 @@ extern void intr_stub_45();
 extern void intr_stub_46();
 extern void intr_stub_47();
 
+extern void intr_stub_128();
+
 #endif

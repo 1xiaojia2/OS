@@ -1,6 +1,8 @@
 #include <ds/ioqueue.h>
 #include <asm/cpu.h>
 #include <kdebug.h>
+#include <stddef.h>
+#include <kernel/process/header.h>
 
 /* 初始化io队列ioq */
 void ioqueue_init(struct ioqueue* ioq) {
@@ -27,13 +29,13 @@ static bool ioq_empty(struct ioqueue* ioq) {
 
 static void ioq_wait(struct task_struct** waiter) {
    ASSERT(*waiter == NULL && waiter != NULL);
-   *waiter = running_thread();
-   thread_block(BLOCKED);
+   *waiter = current_task();
+   task_block();
 }
 
 static void wakeup(struct task_struct** waiter) {
    ASSERT(*waiter != NULL);
-   thread_unblock(*waiter); 
+   task_unblock(*waiter); 
    *waiter = NULL;
 }
 

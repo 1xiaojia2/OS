@@ -74,24 +74,24 @@ objdump: $(BUILD_DIR)/$(OS_ISO)
 clean:
 	rm -rf $(BUILD_DIR)
 
-qemu: all
+qemu: 
 	qemu-system-i386 -cdrom $(BUILD_DIR)/$(OS_ISO) 
 
-qemu-dbg: all
+qemu-dbg: 
 	@echo "Starting QEMU with debugging enabled..."
 	@qemu-system-i386 -s -S -cdrom $(BUILD_DIR)/$(OS_ISO) &
 	@sleep 1 
 	@echo "Launching GDB for debugging..."
 	@$(GDB) -x $(GDB_CONF) $(BIN_DIR)/$(OS_BIN)
 
-bochs: all
+bochs: 
 	bochs -f $(BOCHS_CONF)
 
-vscode-dbg: all
+vscode-dbg: 
 	@qemu-system-i386 -s -S -cdrom $(BUILD_DIR)/$(OS_ISO)
 
-virtual-box: all
+virtual-box: 
 	@cp $(BUILD_DIR)/$(OS_ISO) $(VIRTUAL_BOX_ISO_DIR)
 
-bochs-dbg: all
+bochs-dbg: 
 	bochs -f $(BOCHS_DBG)

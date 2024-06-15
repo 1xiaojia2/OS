@@ -31,3 +31,29 @@
 make all
 ```
 
+## 运行和调试
+
+使用QUME启动：
+
+```shell
+make qemu		
+```
+
+使用Bochs启动：
+
+```shell
+make bochs
+```
+
+使用VS Code调试：
+
+```shell
+make vscode-dbg
+```
+
+使用QEMU调试：
+
+```
+make qemu-dbg
+```
+
